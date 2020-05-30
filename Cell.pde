@@ -3,7 +3,8 @@ class Cell {
   public int currentX, currentY, currentZ;
   private PMatrix3D matrix;
   private float len;
-  private Face[] faces;
+  private ArrayList<Face> innerFaces;
+  public ArrayList<Face> coloredFaces;
   
   /*
     - Set colors and directions for each side of the cell
@@ -11,8 +12,8 @@ class Cell {
     - White = UP and Green = FRONT
   */
   final color[] SIDE_COLORS = {
-    #FFFF00, #FFFFFF, #00FF00,
-    #0000FF, #FF0000, #FFA500
+    #FFFFFF, #FFFF00, #00FF00,
+    #0000FF, #FF8D1A, #FF0000
   };
   
   final PVector[] DIRECTIONS = {
@@ -28,21 +29,24 @@ class Cell {
     this.currentZ = this.solvedZ = startZ;
     this.matrix = matrix;
     this.len = len;
-    faces = new Face[6];
+    //faces = new Face[6];
     
-     // determine which faces are colored and which are black (inside the cube)
+    // determine which faces are colored and which are black (inside the cube)
     final boolean FACE_CASES[] = {
       (solvedY == 0), (solvedY == (cubeDim - 1)),
       (solvedZ == (cubeDim - 1)), (solvedZ == 0),
       (solvedX == 0), (solvedX == (cubeDim - 1))
     };
 
+    innerFaces = new ArrayList<Face>();
+    coloredFaces = new ArrayList<Face>();
+    
     for (int i = 0; i < 6; i++) {
       if (FACE_CASES[i]) {
-        faces[i] = new Face(DIRECTIONS[i], SIDE_COLORS[i], len);
+        coloredFaces.add(new Face(DIRECTIONS[i], DIRECTIONS[i], SIDE_COLORS[i], len));
       }
       else {
-        faces[i] = new Face(DIRECTIONS[i], color(0), len);
+        innerFaces.add(new Face(DIRECTIONS[i], DIRECTIONS[i], color(0), len));
       }
     }
   }
@@ -52,16 +56,21 @@ class Cell {
     noFill();
     stroke(0);
     strokeWeight(7 * (len / 48)); // calculated based on size of each cell
-    
+        
     pushMatrix();
+        
     applyMatrix(matrix);
+        
     box(len);
     
-    // display each face of the cell
-    for (Face f : faces) {
+    // display each inner and colored face of the cell
+    for (Face f : innerFaces) {
       f.show();
     }
-  
+    for (Face f : coloredFaces) {
+      f.show();
+    }
+    
     popMatrix();
   }
   
@@ -76,7 +85,10 @@ class Cell {
   }
 
   public void turnFaces(char fixedAxis, int dirValue) {
-    for (Face f : faces) {
+    for (Face f : innerFaces) {
+      f.turn(fixedAxis, dirValue);
+    }
+    for (Face f : coloredFaces) {
       f.turn(fixedAxis, dirValue);
     }
   }

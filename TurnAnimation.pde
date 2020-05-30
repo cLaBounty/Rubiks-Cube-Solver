@@ -23,7 +23,6 @@ class TurnAnimation {
     this.dirValue = dirValue;
     this.turnSpeed = turnSpeed;
     angle = 0;
-    rubiksCube.isTurning = true;
     
     // get the X, Y, or Z that is fixed
     for (int i = 0; i < rubiksCube.turnXBases.length; i++) {
@@ -53,8 +52,12 @@ class TurnAnimation {
     this.z = -1;
   }
   
+  void start() {
+    rubiksCube.isTurning = true; 
+  }
+  
   void update() {
-      angle += dirValue * 0.07 * turnSpeed;
+      angle += dirValue * 5.98 * turnSpeed;
     
       // if animation is done, then make chages to cube and stop animation
       if (abs(angle) > HALF_PI) {
@@ -62,5 +65,10 @@ class TurnAnimation {
         rubiksCube.turn();
         rubiksCube.isTurning = false;
       }
+  }
+  
+  public TurnAnimation invert() {
+    TurnAnimation retVal = new TurnAnimation(this.notationBase, this.dirValue * -1, this.turnSpeed);
+    return retVal;
   }
 }

@@ -1,3 +1,4 @@
+import java.util.*; //<>//
 import peasy.*;
 
 PeasyCam camera;
@@ -6,9 +7,6 @@ PeasyCam camera;
 Cube rubiksCube = new Cube(3);
 
 boolean isCubeMoveable;
-
-// HUD font
-PFont font;
 
 // HUD button constants
 final int BTN_HEIGHT = 50;
@@ -38,7 +36,8 @@ void setup() {
   camera.setWheelHandler(null); // disable scroll wheel zoom
   camera.setResetOnDoubleClick(false); // disable reset on double click
   
-  // load HUD font
+  // HUD font
+  PFont font;
   font = loadFont("Arial-BoldMT-32.vlw");
   textFont(font);
   
@@ -157,7 +156,7 @@ void mousePressed() {
         else if ( // reset button
           mouseX < (MIDDLE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
           mouseX > (MIDDLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-            if (!rubiksCube.isTurning) {
+            if (!rubiksCube.isTurning && !rubiksCube.isSolved()) {
               rubiksCube = new Cube(rubiksCube.getDimensions());
               rubiksCube.build();
             }
