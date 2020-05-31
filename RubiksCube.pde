@@ -3,7 +3,7 @@ import peasy.*;
 
 PeasyCam camera;
 
-// creating 3x3 rubik's cube
+// creating the initial 3x3 rubik's cube
 Cube rubiksCube = new Cube(3);
 
 boolean isCubeMoveable;
@@ -23,7 +23,7 @@ final int TWO_BY_TWO_X = MIDDLE_BTN_X - BOT_BTN_WIDTH - BOT_BTN_GAP;
 final int FOUR_BY_FOUR_X = MIDDLE_BTN_X + BOT_BTN_WIDTH + BOT_BTN_GAP;
 
 void setup() {
-  // window size
+  // window size and 3D renderer
   size(600, 600, P3D);
   
   // camera setup
@@ -71,6 +71,9 @@ void draw() {
       // able to edit cube
       isCubeMoveable = true;
     }
+  }
+  else {
+    cursor(HAND); 
   }
   
   // HUD
@@ -135,7 +138,6 @@ boolean checkButtonHover() {
        mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) &&
        mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2)))))
       {
-        cursor(HAND);
         return true;
       }
   

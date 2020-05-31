@@ -16,13 +16,23 @@ class Cube {
   
   int turnSpeed = 1;
   
-  int turnCount = 0;
-  
   boolean isTurning = false;
   boolean isScrambling = false;
   boolean isSolving = false;
   
   ArrayList<TurnAnimation> solveTurnSequence;
+  
+  /*
+  Phase 1: Align white center to top
+  Phase 2: Align green center to front
+  Phase 3: Solve all edge pieces
+  Phase 4: Solve all corner pieces
+  */
+  int solvePhase = 1;
+
+  int turnCount = 0;
+  
+  int edgeSwapCount = 0;
   
   // constructor
   Cube(int dim) {
@@ -161,15 +171,19 @@ class Cube {
     // reset the solve sequence
     solveTurnSequence.removeAll(solveTurnSequence);
     turnCount = 0;
+    solvePhase = 1;
+    edgeSwapCount = 0;
   }
   
   private boolean isSolved() {
     // if any cell is not in it's solved location, then the cube is not solved
-    for (int i = 0; i < cells.length; i++) {
-      if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
-          cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
-          cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
-          return false;
+    for (Cell c : cells) {
+      if (c.coloredFaces.size() > 0) { // disregard the cell in the middle of the cube
+        if (c.currentX != c.solvedX || c.currentY != c.solvedY || c.currentZ != c.solvedZ ||
+            c.coloredFaces.get(0).dir.x != c.coloredFaces.get(0).initialDir.x ||
+            c.coloredFaces.get(0).dir.y != c.coloredFaces.get(0).initialDir.y) {
+            return false;
+        }
       }
     }
     
@@ -253,17 +267,6 @@ class Cube {
   
   
   
-  
-  /*
-  Phase 1: Align white center to top
-  Phase 2: Align green center to front
-  Phase 3: Solve all edge pieces
-  Phase 4: Solve all corner pieces
-  */
-  int solvePhase = 1;
-  
-  int edgeSwapCount = 0;
-  
   private void setNextTurns() {
     if (solvePhase == 1) {
       alignWhiteCenter();
@@ -329,14 +332,14 @@ class Cube {
     }
   }
   
-  boolean areEdgesSolved() {   
+  boolean areEdgesSolved() {
     // loop through all edge pieces to see if any are flipped or in the incorrect position
     for (Cell c : cells) {
       if (c.coloredFaces.size() == 2) {
         if (c.currentX != c.solvedX || c.currentY != c.solvedY || c.currentZ != c.solvedZ ||
             c.coloredFaces.get(0).dir.x != c.coloredFaces.get(0).initialDir.x ||
             c.coloredFaces.get(0).dir.y != c.coloredFaces.get(0).initialDir.y) {
-              return false;
+            return false;
         }
       }
     }
@@ -677,7 +680,10 @@ class Cube {
       
       // if the swap cell is the buffer, then pick any unsolved piece
       if (isBuffer) {
-        for (int i = 1; i < cells.length; i++) {
+        
+        println("Line 684");
+        
+        for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
           if (cells[i].coloredFaces.size() == 3) {
             if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
                 cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
@@ -868,8 +874,11 @@ class Cube {
       
       // if the swap cell is the buffer, then pick any unsolved piece
       if (isBuffer) {
-        for (int i = 0; i < cells.length; i++) {
-          if (cells[i].coloredFaces.size() == 2) {
+        
+        println("Line 875");
+        
+        for (int i = 1; i < cells.length; i++) { // first edge is at index 1
+          if (cells[i].coloredFaces.size() == 2 && i != 19) { // only select an edge piece that is not the buffer
             if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
                 cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
                 cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
