@@ -29,7 +29,9 @@ class Cell {
     this.currentZ = this.solvedZ = startZ;
     this.matrix = matrix;
     this.len = len;
-    //faces = new Face[6];
+    
+    innerFaces = new ArrayList<Face>();
+    coloredFaces = new ArrayList<Face>();
     
     // determine which faces are colored and which are black (inside the cube)
     final boolean FACE_CASES[] = {
@@ -37,9 +39,6 @@ class Cell {
       (solvedZ == (cubeDim - 1)), (solvedZ == 0),
       (solvedX == 0), (solvedX == (cubeDim - 1))
     };
-
-    innerFaces = new ArrayList<Face>();
-    coloredFaces = new ArrayList<Face>();
     
     for (int i = 0; i < 6; i++) {
       if (FACE_CASES[i]) {
