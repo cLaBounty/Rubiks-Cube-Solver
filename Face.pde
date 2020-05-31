@@ -1,11 +1,13 @@
 class Face {
-  private PVector dir;
-  private color col;
+  public PVector initialDir;
+  public PVector dir;
+  public color col;
   private float len;
   
   // constructor
-  Face(PVector dir, color col, float len) {
+  Face(PVector dir, PVector initDir, color col, float len) {
     this.dir = dir;
+    this.initialDir = initDir;
     this.col = col;
     this.len = len;
   }
