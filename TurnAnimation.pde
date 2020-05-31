@@ -7,21 +7,18 @@ class TurnAnimation {
   float angle;
   char notationBase;
   int dirValue;
-  int turnSpeed;
 
   // default constructor
   TurnAnimation() {
     this.notationBase = '\0';
     this.dirValue = 0;
-    this.turnSpeed = 0;
     angle = 0;
   }
   
   // custom constructor
-  TurnAnimation(char notationBase, int dirValue, int turnSpeed) {
+  TurnAnimation(char notationBase, int dirValue) {
     this.notationBase = notationBase;
     this.dirValue = dirValue;
-    this.turnSpeed = turnSpeed;
     angle = 0;
     
     // get the X, Y, or Z that is fixed
@@ -57,7 +54,7 @@ class TurnAnimation {
   }
   
   void update() {
-      angle += dirValue * 5.98 * turnSpeed;
+      angle += dirValue * 0.08 * rubiksCube.turnSpeed;
     
       // if animation is done, then make chages to cube and stop animation
       if (abs(angle) > HALF_PI) {
@@ -68,7 +65,8 @@ class TurnAnimation {
   }
   
   public TurnAnimation invert() {
-    TurnAnimation retVal = new TurnAnimation(this.notationBase, this.dirValue * -1, this.turnSpeed);
+    // must be a new instance or this also changes
+    TurnAnimation retVal = new TurnAnimation(this.notationBase, this.dirValue * -1);
     return retVal;
   }
 }

@@ -201,3 +201,10 @@ void mousePressed() {
     }
   }
 }
+
+void keyPressed() {
+  if (key == '+')
+    rubiksCube.turnSpeed++; 
+  else if (key == '-')
+    rubiksCube.turnSpeed--;
+}
