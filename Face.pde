@@ -5,9 +5,9 @@ class Face {
   private float len;
   
   // constructor
-  Face(PVector dir, PVector initDir, color col, float len) {
+  Face(PVector initialDir, PVector dir, color col, float len) {
+    this.initialDir = initialDir;
     this.dir = dir;
-    this.initialDir = initDir;
     this.col = col;
     this.len = len;
   }
