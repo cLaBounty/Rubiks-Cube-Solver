@@ -4,7 +4,7 @@ import peasy.*;
 PeasyCam camera;
 
 // creating the initial 3x3 rubik's cube
-Cube rubiksCube = new Cube(3);
+Cube rubiksCube = new ThreeDimCube();
 
 boolean isCubeMoveable;
 
@@ -152,21 +152,35 @@ void mousePressed() {
         if ( // scramble button
           mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
           mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-            if (!rubiksCube.isTurning)
+            if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
               rubiksCube.scramble();
         }
         else if ( // reset button
           mouseX < (MIDDLE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
           mouseX > (MIDDLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-            if (!rubiksCube.isTurning && !rubiksCube.isSolved()) {
-              rubiksCube = new Cube(rubiksCube.getDimensions());
+            if (!rubiksCube.isSolved()) {              
+              switch(rubiksCube.getDimensions()) {
+                case 2: {
+                  rubiksCube = new TwoDimCube();
+                  break;
+                }
+                case 3: {
+                  rubiksCube = new ThreeDimCube();
+                  break;
+                }
+                case 4: {
+                  rubiksCube = new FourDimCube();
+                  break;
+                }
+              }
+              
               rubiksCube.build();
             }
         }
         else if ( // solve button
           mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
           mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-            if (!rubiksCube.isTurning)
+            if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
               rubiksCube.solve();
         }
   }
@@ -176,24 +190,24 @@ void mousePressed() {
       if ( // 2x2 button
         mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) &&
         mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2))) {
-          if (!rubiksCube.isTurning && rubiksCube.getDimensions() != 2) {
-            rubiksCube = new Cube(2);
+          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 2) {
+            rubiksCube = new TwoDimCube();
             rubiksCube.build();
           }
       }
       else if ( // 3x3 button
         mouseX < (MIDDLE_BTN_X + (BOT_BTN_WIDTH / 2)) &&
         mouseX > (MIDDLE_BTN_X - (BOT_BTN_WIDTH / 2))) {
-          if (!rubiksCube.isTurning && rubiksCube.getDimensions() != 3) {
-            rubiksCube = new Cube(3);
+          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 3) {
+            rubiksCube = new ThreeDimCube();
             rubiksCube.build();
           }
       }
       else if ( // 4x4 button
         mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) &&
         mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2))) {
-          if (!rubiksCube.isTurning && rubiksCube.getDimensions() != 4) {
-            rubiksCube = new Cube(4);
+          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 4) {
+            rubiksCube = new FourDimCube();
             rubiksCube.build();
           }
       }

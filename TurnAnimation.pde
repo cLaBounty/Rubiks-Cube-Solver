@@ -1,12 +1,10 @@
 class TurnAnimation {
-   
-  int x;
-  int y;
-  int z;
-  
-  float angle;
-  char notationBase;
-  int dirValue;
+  public int x;
+  public int y;
+  public int z;
+  public float angle;
+  private char notationBase;
+  private int dirValue;
 
   // default constructor
   TurnAnimation() {
@@ -54,7 +52,10 @@ class TurnAnimation {
   }
   
   void update() {
-      angle += dirValue * 0.08 * rubiksCube.turnSpeed;
+    if (rubiksCube.isSolving)
+      angle += dirValue * 0.07 * rubiksCube.turnSpeed;
+    else
+      angle += dirValue * 0.35;
     
       // if animation is done, then make chages to cube and stop animation
       if (abs(angle) > HALF_PI) {
@@ -65,7 +66,7 @@ class TurnAnimation {
   }
   
   public TurnAnimation invert() {
-    // must be a new instance or this also changes
+    // must be a new instance or this instance also changes
     TurnAnimation retVal = new TurnAnimation(this.notationBase, this.dirValue * -1);
     return retVal;
   }
