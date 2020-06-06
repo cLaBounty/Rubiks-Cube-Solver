@@ -40,12 +40,11 @@ class TurnAnimation {
         return; // no need to search further
       }
     }
-    
-    // if not found
-    this.x = -1;
-    this.y = -1;
-    this.z = -1;
   }
+  
+  // getters
+  public char getNotationBase() { return notationBase; }
+  public int getDirValue() { return dirValue; }
   
   void start() {
     rubiksCube.isTurning = true; 
@@ -63,11 +62,5 @@ class TurnAnimation {
         rubiksCube.turn();
         rubiksCube.isTurning = false;
       }
-  }
-  
-  public TurnAnimation invert() {
-    // must be a new instance or this instance also changes
-    TurnAnimation retVal = new TurnAnimation(this.notationBase, this.dirValue * -1);
-    return retVal;
   }
 }
