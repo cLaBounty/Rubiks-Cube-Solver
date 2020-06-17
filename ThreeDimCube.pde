@@ -1,5 +1,4 @@
-class ThreeDimCube extends Cube {
-  
+class ThreeDimCube extends Cube {  
   /*
   Phase 1: Align white center to top
   Phase 2: Align green center to front
@@ -54,7 +53,7 @@ class ThreeDimCube extends Cube {
         solveEdge();
       else {
         // Parity Algorithm (only if an odd # of edges were moved)
-        if (edgeSwapCount % 2 == 1)
+        if (edgeSwapCount % 2 == 1) //<>//
           addParityAlgorithm();
         
         // next phase
@@ -106,21 +105,22 @@ class ThreeDimCube extends Cube {
   private boolean areEdgesSolved() {
     // loop through all edge pieces to see if any are flipped or in the incorrect position
     for (Cell c : cells) {
-      if (c.coloredFaces.size() == 2) {
-        if (c.currentX != c.solvedX || c.currentY != c.solvedY || c.currentZ != c.solvedZ) {
+      if (c.coloredFaces.size() == 2 && c.currentX != 1) { // disregard M slice
+        if (c.currentX != c.solvedX || c.currentY != c.solvedY || c.currentZ != c.solvedZ ||
+            c.coloredFaces.get(0).dir.x != c.coloredFaces.get(0).initialDir.x ||
+            c.coloredFaces.get(0).dir.y != c.coloredFaces.get(0).initialDir.y) {
               return false;
         }
       }
     }
-
     return true;
   }
   
   private void solveEdge() {
     // M2 Swap Algorithm
     final TurnAnimation[] M2_SWAP_ALG = {
-      new TurnAnimation('M', -1), // M
-      new TurnAnimation('M', -1) // M
+      new TurnAnimation('M', 1), // M'
+      new TurnAnimation('M', 1) // M'
     };
     
     // getting the buffer cell's index in the array of all cells
@@ -179,10 +179,10 @@ class ThreeDimCube extends Cube {
       swapCellDir = new PVector(0, 0, -1);
     else // #00FF00
       swapCellDir = new PVector(0, 0, 1);
-      
+    
     // increment the edge swap counter
     edgeSwapCount++;
-
+    
     // get the setup moves for that specific face
     ArrayList<TurnAnimation> setUpSequence = getEdgeSetupMoves(swapCellX, swapCellY, swapCellZ, swapCellDir);
 
@@ -307,33 +307,29 @@ class ThreeDimCube extends Cube {
     // rare case when the swap cell is also the buffer
     boolean isBuffer;
     
-    
-    if (edgeSwapCount % 2 == 0) {
-      // C -> W
-      // I -> S
-      // and VICE VERSA
-      
-      if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
-        swapCellDir.y = 1;
-        swapCellZ = 0;
-      }
-      else if (swapCellDir.y == 1 && swapCellZ == 0) { // W face to C Face
-        swapCellDir.y = -1;
-        swapCellZ = 2;
-      }
-      else if (swapCellDir.z == 1 && swapCellY == 0) { // I Face to S Face
-        swapCellDir.z = -1;
-        swapCellY = 2;
-      }
-      else if (swapCellDir.z == -1 && swapCellY == 2) { // S Face to I Face
-        swapCellDir.z = 1;
-        swapCellY = 0;
-      }
-    }
-
     do {
       isBuffer = false;
       
+      // special swap when C, W, I, or S is the 2nd letter of the pair
+      if (edgeSwapCount % 2 == 0) {
+        if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
+          swapCellDir.y = 1;
+          swapCellZ = 0;
+        }
+        else if (swapCellDir.y == 1 && swapCellZ == 0) { // W face to C Face
+          swapCellDir.y = -1;
+          swapCellZ = 2;
+        }
+        else if (swapCellDir.z == 1 && swapCellY == 0) { // I Face to S Face
+          swapCellDir.z = -1;
+          swapCellY = 2;
+        }
+        else if (swapCellDir.z == -1 && swapCellY == 2) { // S Face to I Face
+          swapCellDir.z = 1;
+          swapCellY = 0;
+        }
+      }
+    
       if (swapCellDir.y == -1) {
         if (swapCellZ == 0) { // A face
           // special case
@@ -351,7 +347,6 @@ class ThreeDimCube extends Cube {
         else if (swapCellZ == 2) { // C face
           // special case
           println("C");
-          
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
           solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
@@ -462,7 +457,7 @@ class ThreeDimCube extends Cube {
       else if (swapCellDir.z == -1) {
         if (swapCellY == 0) { // Q face
           // special case
-            println("Q");
+          println("Q");
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
           solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
           solveTurnSequence.add(new TurnAnimation('R', 1)); // R
@@ -522,7 +517,6 @@ class ThreeDimCube extends Cube {
         else if (swapCellZ == 0) { // W face
           // special case
           println("W");
-            
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
@@ -540,20 +534,23 @@ class ThreeDimCube extends Cube {
       }
       
       // if the swap cell is the buffer, then pick any unsolved piece
-      if (isBuffer) {      
-        for (int i = 1; i < cells.length; i++) { // first edge is at index 1
-          if (cells[i].coloredFaces.size() == 2 && i != 19) { // only select an edge piece that is not the buffer
-            if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
-                cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
-                cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
-                  
+      if (isBuffer) {
+        for (int i = 1; i < cells.length; i++) { // first edge is at index 1 //<>//
+          if (cells[i].coloredFaces.size() == 2 && i != 17 && i != 9) { // don't allow for new swap cell to be the buffer or target
+            if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ) {
+                
                 swapCellX = cells[i].currentX;
                 swapCellY = cells[i].currentY;
                 swapCellZ = cells[i].currentZ;
                 
                 swapCellDir = cells[i].coloredFaces.get(0).dir;
+                isBuffer = true;
+                
                 break;
             }
+          }
+          else {
+            isBuffer = false;
           }
         }
       }
