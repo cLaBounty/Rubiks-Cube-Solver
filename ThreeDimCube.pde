@@ -49,11 +49,11 @@ class ThreeDimCube extends Cube {
       solvePhase++;
     }
     else if (solvePhase == 3) {
-      if (!areEdgesSolved())
+      if (!areEdgesFixed())
         solveEdge();
       else {
         // Parity Algorithm (only if an odd # of edges were moved)
-        if (edgeSwapCount % 2 == 1) //<>//
+        if (edgeSwapCount % 2 == 1)
           addParityAlgorithm();
         
         // next phase
@@ -102,18 +102,36 @@ class ThreeDimCube extends Cube {
     }
   }
   
-  private boolean areEdgesSolved() {
-    // loop through all edge pieces to see if any are flipped or in the incorrect position
+  private boolean areEdgesFixed() {
+    
+    int counter = 0;
+    
+    // loop through all edge pieces to see if any are in the incorrect position
     for (Cell c : cells) {
-      if (c.coloredFaces.size() == 2 && c.currentX != 1) { // disregard M slice
+      if (c.coloredFaces.size() == 2) {
         if (c.currentX != c.solvedX || c.currentY != c.solvedY || c.currentZ != c.solvedZ ||
             c.coloredFaces.get(0).dir.x != c.coloredFaces.get(0).initialDir.x ||
             c.coloredFaces.get(0).dir.y != c.coloredFaces.get(0).initialDir.y) {
-              return false;
+              
+              // if parity, then allow for 2 edges in the M slice to be off
+              if (edgeSwapCount % 2 == 1) {
+                if (c.currentX == 1)
+                  counter++;
+                else
+                  return false;
+              }
+              else { // if NOT parity, then all should be solved
+                return false;
+              }
         }
       }
     }
-    return true;
+    
+    // allow for 2 cells to be off in the M slice
+    if (counter > 2)
+      return false;
+    else
+      return true;
   }
   
   private void solveEdge() {
@@ -535,24 +553,30 @@ class ThreeDimCube extends Cube {
       
       // if the swap cell is the buffer, then pick any unsolved piece
       if (isBuffer) {
-        for (int i = 1; i < cells.length; i++) { // first edge is at index 1 //<>//
-          if (cells[i].coloredFaces.size() == 2 && i != 17 && i != 9) { // don't allow for new swap cell to be the buffer or target
-            if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ) {
+        
+        for (int i = 1; i < cells.length; i++) { // first edge is at index 1
+          if (cells[i].coloredFaces.size() == 2 && cells[i].currentX != 1) { // don't allow for swap cell to bein M slice
+          
+            if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
+                cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
+                cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
                 
                 swapCellX = cells[i].currentX;
                 swapCellY = cells[i].currentY;
                 swapCellZ = cells[i].currentZ;
                 
                 swapCellDir = cells[i].coloredFaces.get(0).dir;
-                isBuffer = true;
-                
                 break;
             }
           }
-          else {
-            isBuffer = false;
-          }
         }
+        
+        // NEED REVISION
+        // if could not find unsolved piece, then return
+        if (swapCellX == 1) {
+          return setUpSequence;
+        }
+        
       }
     } while (isBuffer);
     
