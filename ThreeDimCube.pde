@@ -555,8 +555,7 @@ class ThreeDimCube extends Cube {
       if (isBuffer) {
         
         for (int i = 1; i < cells.length; i++) { // first edge is at index 1
-          if (cells[i].coloredFaces.size() == 2 && cells[i].currentX != 1) { // don't allow for swap cell to bein M slice
-          
+          if (cells[i].coloredFaces.size() == 2) {
             if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
                 cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
                 cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
@@ -566,17 +565,15 @@ class ThreeDimCube extends Cube {
                 swapCellZ = cells[i].currentZ;
                 
                 swapCellDir = cells[i].coloredFaces.get(0).dir;
-                break;
+                break; //<>//
             }
           }
         }
-        
-        // NEED REVISION
-        // if could not find unsolved piece, then return
-        if (swapCellX == 1) {
-          return setUpSequence;
-        }
-        
+      
+      
+      // if (cells[i].coloredFaces.size() == 2 && i != 9 && i != 17) { // don't allow for the new cell to be the buffer or the target
+      
+      
       }
     } while (isBuffer);
     
