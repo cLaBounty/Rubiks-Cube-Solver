@@ -54,7 +54,7 @@ class TurnAnimation {
     if (rubiksCube.isSolving)
       angle += dirValue * 0.07 * rubiksCube.turnSpeed;
     else
-      angle += dirValue * 0.35;
+      angle += dirValue * 10.35; //0.35
     
       // if animation is done, then make chages to cube and stop animation
       if (abs(angle) > HALF_PI) {
