@@ -5,9 +5,8 @@ class Face {
   private float len;
   
   // constructor
-  Face(PVector initialDir, PVector dir, color col, float len) {
-    this.initialDir = initialDir;
-    this.dir = dir;
+  Face(PVector dir, color col, float len) {
+    this.initialDir = this.dir = dir;
     this.col = col;
     this.len = len;
   }
@@ -52,7 +51,7 @@ class Face {
     rotateY(dir.x * HALF_PI);
     
     square(0, 0, len);
-        
+    
     popMatrix();
   }
 }
