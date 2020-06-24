@@ -114,29 +114,14 @@ void draw() {
 
 boolean checkButtonHover() {
   // check if the mouse if hovering over any of the buttons
-  if ((mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) &&
-       mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2)) &&
-       
-      (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
-       mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2)) ||
-       
-       mouseX < (MIDDLE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
-       mouseX > (MIDDLE_BTN_X - (TOP_BTN_WIDTH / 2)) ||
-       
-       mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
-       mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2)))) ||
-       
-      (mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) &&
-       mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2)) &&
-       
-      (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) &&
-       mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2)) ||
-       
-       mouseX < (MIDDLE_BTN_X + (BOT_BTN_WIDTH / 2)) &&
-       mouseX > (MIDDLE_BTN_X - (BOT_BTN_WIDTH / 2)) ||
-       
-       mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) &&
-       mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2)))))
+  if ((mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2)) &&
+      (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2)) ||
+       mouseX < (MIDDLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN_X - (TOP_BTN_WIDTH / 2)) ||
+       mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2)))) ||
+      (mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2)) &&
+      (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) && mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2)) ||
+       mouseX < (MIDDLE_BTN_X + (BOT_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN_X - (BOT_BTN_WIDTH / 2)) ||
+       mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) && mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2)))))
       {
         return true;
       }
@@ -146,70 +131,66 @@ boolean checkButtonHover() {
  //<>//
 void mousePressed() {
   if (mouseButton == LEFT) {
-    if (
-      mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) &&
-      mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2))) {
-        if ( // scramble button
-          mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
-          mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-            if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
-              rubiksCube.scramble();
-        }
-        else if ( // reset button
-          mouseX < (MIDDLE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
-          mouseX > (MIDDLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-            if (!rubiksCube.isSolved()) {              
-              switch(rubiksCube.getDimensions()) {
-                case 2: {
-                  rubiksCube = new TwoDimCube();
-                  break;
-                }
-                case 3: {
-                  rubiksCube = new ThreeDimCube();
-                  break;
-                }
-                case 4: {
-                  rubiksCube = new FourDimCube();
-                  break;
-                }
-              }
-              
-              rubiksCube.build();
+    if (mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2))) {
+      // scramble button
+      if (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
+        if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
+          rubiksCube.scramble();
+      }
+      // reset button
+      else if (mouseX < (MIDDLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
+        // reset camera angle
+        camera = new PeasyCam(this, 400);
+        camera.rotateX(radians(25));
+        camera.rotateY(radians(30));
+        camera.rotateZ(radians(-12));
+           
+        if (!rubiksCube.isSolved()) {
+          switch(rubiksCube.getDimensions()) {
+            case 2: {
+              rubiksCube = new TwoDimCube();
+              break;
             }
+            case 3: {
+              rubiksCube = new ThreeDimCube();
+              break;
+            }
+            case 4: {
+              rubiksCube = new FourDimCube();
+              break;
+            }
+          }
+          
+          rubiksCube.build();
         }
-        else if ( // solve button
-          mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) &&
-          mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-            if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
-              rubiksCube.solve();
+      }
+      // solve button
+      else if (mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2))) {
+        if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
+          rubiksCube.solve();
+      }
+    }
+    else if (mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2))) {
+      // 2x2 button
+      if (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) && mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2))) {
+        if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 2) {
+          rubiksCube = new TwoDimCube();
+          rubiksCube.build();
         }
-  }
-  else if (
-    mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) &&
-    mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2))) {
-      if ( // 2x2 button
-        mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) &&
-        mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2))) {
-          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 2) {
-            rubiksCube = new TwoDimCube();
-            rubiksCube.build();
-          }
       }
-      else if ( // 3x3 button
-        mouseX < (MIDDLE_BTN_X + (BOT_BTN_WIDTH / 2)) &&
-        mouseX > (MIDDLE_BTN_X - (BOT_BTN_WIDTH / 2))) {
-          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 3) {
-            rubiksCube = new ThreeDimCube();
-            rubiksCube.build();
-          }
+      // 3x3 button
+      else if (mouseX < (MIDDLE_BTN_X + (BOT_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN_X - (BOT_BTN_WIDTH / 2))) {
+        if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 3) {
+          rubiksCube = new ThreeDimCube();
+          rubiksCube.build();
+        }
       }
-      else if ( // 4x4 button
-        mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) &&
-        mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2))) {
-          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 4) {
-            rubiksCube = new FourDimCube();
-            rubiksCube.build();
-          }
+      // 4x4 button
+      else if (mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) && mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2))) {
+        if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 4) {
+          rubiksCube = new FourDimCube();
+          rubiksCube.build();
+        }
       }
     }
     else if (isCubeMoveable) {

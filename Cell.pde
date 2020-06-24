@@ -42,10 +42,10 @@ class Cell {
     
     for (int i = 0; i < 6; i++) {
       if (FACE_CASES[i]) {
-        coloredFaces.add(new Face(DIRECTIONS[i], DIRECTIONS[i], SIDE_COLORS[i], len));
+        coloredFaces.add(new Face(DIRECTIONS[i], SIDE_COLORS[i], len));
       }
       else {
-        innerFaces.add(new Face(DIRECTIONS[i], DIRECTIONS[i], color(0), len));
+        innerFaces.add(new Face(DIRECTIONS[i], color(0), len));
       }
     }
   }

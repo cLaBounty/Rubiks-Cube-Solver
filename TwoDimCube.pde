@@ -1,5 +1,6 @@
 class TwoDimCube extends Cube {
   
+  // constructor
   TwoDimCube() {
     super();
     
@@ -255,13 +256,13 @@ class TwoDimCube extends Cube {
         }
       }
       
-      // if the swap cell is the buffer, then pick any unsolved piece
+      // if the swap cell is the buffer, then pick any unsolved or flipped piece
       if (isBuffer) {
         for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
           if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
               cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
               cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
-                  
+                
               swapCellX = cells[i].currentX;
               swapCellY = cells[i].currentY;
               swapCellZ = cells[i].currentZ;
@@ -269,6 +270,7 @@ class TwoDimCube extends Cube {
               swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
               swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
               swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
+              
               break;
           }
         }
