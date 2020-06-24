@@ -60,7 +60,7 @@ class ThreeDimCube extends Cube {
         solvePhase++;
       }
     }
-    else if (solvePhase == 4) {
+    else if (solvePhase == 4) {      
       if (!isSolved())
         solveCorner();
       else
@@ -104,7 +104,7 @@ class ThreeDimCube extends Cube {
   
   private boolean areEdgesFixed() {
     
-    int counter = 0;
+    int parityCounter = 0;
     
     // loop through all edge pieces to see if any are in the incorrect position
     for (Cell c : cells) {
@@ -113,10 +113,10 @@ class ThreeDimCube extends Cube {
             c.coloredFaces.get(0).dir.x != c.coloredFaces.get(0).initialDir.x ||
             c.coloredFaces.get(0).dir.y != c.coloredFaces.get(0).initialDir.y) {
               
-              // if parity, then allow for 2 edges in the M slice to be off
               if (edgeSwapCount % 2 == 1) {
+                // allow for 2 cells to be off in the M slice
                 if (c.currentX == 1)
-                  counter++;
+                  parityCounter++;
                 else
                   return false;
               }
@@ -127,8 +127,7 @@ class ThreeDimCube extends Cube {
       }
     }
     
-    // allow for 2 cells to be off in the M slice
-    if (counter > 2)
+    if (parityCounter > 2)
       return false;
     else
       return true;
@@ -332,22 +331,26 @@ class ThreeDimCube extends Cube {
       if (edgeSwapCount % 2 == 0) {
         if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
           swapCellDir.y = 1;
+          swapCellY = 2;
           swapCellZ = 0;
         }
         else if (swapCellDir.y == 1 && swapCellZ == 0) { // W face to C Face
           swapCellDir.y = -1;
+          swapCellY = 0;
           swapCellZ = 2;
         }
         else if (swapCellDir.z == 1 && swapCellY == 0) { // I Face to S Face
           swapCellDir.z = -1;
           swapCellY = 2;
+          swapCellZ = 0;
         }
         else if (swapCellDir.z == -1 && swapCellY == 2) { // S Face to I Face
           swapCellDir.z = 1;
           swapCellY = 0;
+          swapCellZ = 2;
         }
       }
-    
+      
       if (swapCellDir.y == -1) {
         if (swapCellZ == 0) { // A face
           // special case
@@ -551,11 +554,10 @@ class ThreeDimCube extends Cube {
         }
       }
       
-      // if the swap cell is the buffer, then pick any unsolved piece
       if (isBuffer) {
-        
+
         for (int i = 1; i < cells.length; i++) { // first edge is at index 1
-          if (cells[i].coloredFaces.size() == 2) {
+          if (cells[i].coloredFaces.size() == 2 && i != 17) { // don't allow for new cell to be the buffer
             if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ ||
                 cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
                 cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
@@ -564,16 +566,27 @@ class ThreeDimCube extends Cube {
                 swapCellY = cells[i].currentY;
                 swapCellZ = cells[i].currentZ;
                 
-                swapCellDir = cells[i].coloredFaces.get(0).dir;
-                break; //<>//
+                int faceIndex = 0;
+                
+                if (swapCellX != 1) {
+                  faceIndex = round(random(1));
+                }
+                  
+                swapCellDir.x = cells[i].coloredFaces.get(faceIndex).dir.x;
+                swapCellDir.y = cells[i].coloredFaces.get(faceIndex).dir.y;
+                swapCellDir.z = cells[i].coloredFaces.get(faceIndex).dir.z;
+                
+                // if new cell is in the M slice, then continue looking
+                if (swapCellX != 1)
+                  break;
             }
           }
         }
-      
-      
-      // if (cells[i].coloredFaces.size() == 2 && i != 9 && i != 17) { // don't allow for the new cell to be the buffer or the target
-      
-      
+        
+        if (swapCellX == 1) {
+          println(swapCellDir.x);
+        }
+        
       }
     } while (isBuffer);
     
@@ -740,7 +753,9 @@ class ThreeDimCube extends Cube {
                 swapCellY = cells[i].currentY;
                 swapCellZ = cells[i].currentZ;
                 
-                swapCellDir = cells[i].coloredFaces.get(0).dir;
+                swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
+                swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
+                swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
                 break;
             }
           }

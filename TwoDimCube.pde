@@ -266,7 +266,9 @@ class TwoDimCube extends Cube {
               swapCellY = cells[i].currentY;
               swapCellZ = cells[i].currentZ;
                 
-              swapCellDir = cells[i].coloredFaces.get(0).dir;
+              swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
+              swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
+              swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
               break;
           }
         }
