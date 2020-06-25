@@ -6,7 +6,7 @@ class FourDimCube extends Cube {
   Phase 3: Solve all edge pieces
   Phase 4: Solve all corner pieces
   */
-  //private int solvePhase;
+  private int solvePhase;
   
   FourDimCube() {
     super();
@@ -20,6 +20,8 @@ class FourDimCube extends Cube {
     turnXBases = new char[]{'L', 'l', 'r', 'R'};
     turnYBases = new char[]{'U', 'u', 'd', 'D'};
     turnZBases = new char[]{'B', 'b', 'f', 'F'};
+    
+    solvePhase = 1;
   }
   
   public void solve() {
@@ -28,8 +30,7 @@ class FourDimCube extends Cube {
     // reset the solve sequence
     solveTurnSequence.removeAll(solveTurnSequence);
     turnCount = 0;
-    //solvePhase = 1;
-    //edgeSwapCount = 0;    
+    solvePhase = 1;   
   }
   
   protected void setNextTurns() {
@@ -47,7 +48,7 @@ class FourDimCube extends Cube {
       solvePhase++;
     }
     else if (solvePhase == 3) {
-      if (!areEdgesSolved())
+      if (!areEdgesFixed())
         solveEdge();
       else {
         // Parity Algorithm (only if an odd # of edges were moved)
@@ -58,12 +59,12 @@ class FourDimCube extends Cube {
         solvePhase++;
       }
     }
-    else if (solvePhase == 4) {
+    else if (solvePhase == 4) {    
       if (!isSolved())
         solveCorner();
       else
         isSolving = false;
     }
-    */  
+    */
   }
 }

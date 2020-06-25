@@ -47,20 +47,20 @@ class TurnAnimation {
   public int getDirValue() { return dirValue; }
   
   void start() {
-    rubiksCube.isTurning = true; 
+    rubiksCube.isTurning = true;
   }
   
   void update() {
     if (rubiksCube.isSolving)
-      angle += dirValue * 0.065 * rubiksCube.turnSpeed;
+      angle += dirValue * 0.06 * rubiksCube.turnSpeed;
     else
       angle += dirValue * 0.35;
     
-      // if animation is done, then make chages to cube and stop animation
-      if (abs(angle) > HALF_PI) {
-        angle = 0;
-        rubiksCube.turn();
-        rubiksCube.isTurning = false;
-      }
+    // if animation is done, then make chages to cube and stop animation
+    if (abs(angle) > HALF_PI) {
+      angle = 0;
+      rubiksCube.turn();
+      rubiksCube.isTurning = false;
+    }
   }
 }

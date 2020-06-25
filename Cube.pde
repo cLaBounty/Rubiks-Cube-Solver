@@ -10,7 +10,7 @@ abstract class Cube {
   public char[] turnYBases;
   public char[] turnZBases;
   public int turnCount;
-  public float turnSpeed;
+  private float turnSpeed;
   
   protected int scrambleTurnNum;
   protected ArrayList<TurnAnimation> solveTurnSequence;
@@ -33,7 +33,9 @@ abstract class Cube {
     isSolving = false;
   }
   
+  // getters and setters
   public int getDimensions() { return dim; }
+  public void setTurnSpeed(float turnSpeed) { this.turnSpeed = turnSpeed; }
 
   // member functions
   public void build() {
