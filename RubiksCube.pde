@@ -178,11 +178,15 @@ void mousePressed() {
       }
       // reset button
       else if (mouseX < (MIDDLE_BTN + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (TOP_BTN_WIDTH / 2))) {
-        // reset camera angle
+        // reset camera
         camera = new PeasyCam(this, 400);
         camera.rotateX(radians(25));
         camera.rotateY(radians(30));
         camera.rotateZ(radians(-12));
+        camera.setRightDragHandler(null); // disable right click functionality
+        camera.setCenterDragHandler(null); // disable scroll wheel click functionality
+        camera.setWheelHandler(null); // disable scroll wheel zoom
+        camera.setResetOnDoubleClick(false); // disable reset on double click
            
         if (!rubiksCube.isSolved()) {
           switch(rubiksCube.getDimensions()) {

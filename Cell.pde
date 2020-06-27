@@ -91,4 +91,14 @@ class Cell {
       f.turn(fixedAxis, dirValue);
     }
   }
+  
+  public boolean isSolved() {
+    if (currentX == solvedX && currentY == solvedY && currentZ == solvedZ &&
+        coloredFaces.get(0).dir.x == coloredFaces.get(0).initialDir.x &&
+        coloredFaces.get(0).dir.y == coloredFaces.get(0).initialDir.y) {
+          return true;
+    }
+    
+    return false;
+  }
 }

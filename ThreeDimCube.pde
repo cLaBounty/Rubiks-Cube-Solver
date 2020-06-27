@@ -106,7 +106,6 @@ class ThreeDimCube extends Cube {
   }
   
   private boolean areEdgesFixed() {
-    
     // counter to determine how many cells in the M slice are unsolved of flipped
     int parityCounter = 0;
     
@@ -115,10 +114,8 @@ class ThreeDimCube extends Cube {
       // only check the edge pieces
       if (c.coloredFaces.size() == 2) {
         // if the cell is in the incorrect position or flipped
-        if (c.currentX != c.solvedX || c.currentY != c.solvedY || c.currentZ != c.solvedZ || //<>//
-            c.coloredFaces.get(0).dir.x != c.coloredFaces.get(0).initialDir.x ||
-            c.coloredFaces.get(0).dir.y != c.coloredFaces.get(0).initialDir.y) {
-            // parity
+        if (!c.isSolved()) {
+            // Parity
             if (edgeSwapCount % 2 == 1) {
               // allow for 2 cells to be off in the M slice
               if (c.currentX == 1)
@@ -150,7 +147,7 @@ class ThreeDimCube extends Cube {
     // getting the buffer cell's index in the array of all cells
     int bufferIndex = -1;
 
-    for (int i = 0; i < cells.length; i++) {
+    for (int i = 1; i < (cells.length - 1); i++) { // first edge is at index 1 and last is at cells.length - 1
       if (cells[i].currentX == 1 && cells[i].currentY == 2 && cells[i].currentZ == 2) {
         bufferIndex = i;
         break;
@@ -228,111 +225,13 @@ class ThreeDimCube extends Cube {
     }
   }
   
-  private void solveCorner() {
-    // Modified Y Perm Algorithm
-    final TurnAnimation[] MOD_Y_PERM_ALG = {
-      new TurnAnimation('R', 1), // R
-      new TurnAnimation('U', -1), // U'
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('U', -1), // U'
-      new TurnAnimation('R', 1), // R
-      new TurnAnimation('U', 1), // U
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('F', -1), // F'
-      new TurnAnimation('R', 1), // R
-      new TurnAnimation('U', 1), // U
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('U', -1), // U'
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('F', 1), // F
-      new TurnAnimation('R', 1) // R
-    };
-    
-    // getting the buffer cell's index in the array of all cells
-    int bufferIndex = -1;
-
-    for (int i = 0; i < cells.length; i++) {
-      if (cells[i].currentX == 0 && cells[i].currentY == 0 && cells[i].currentZ == 0) {
-        bufferIndex = i;
-        break;
-      }
-    }
-    
-    // getting the up, left, and back face color of the buffer cell
-    color bufferUpColor = #FFFFFF;
-    color bufferLeftColor = #FFFFFF;
-    color bufferBackColor = #FFFFFF;
-    
-    for (Face f : cells[bufferIndex].coloredFaces) {
-      if (f.dir.y == -1) // up face
-        bufferUpColor = f.col;
-      else if (f.dir.x == -1) // left face
-        bufferLeftColor = f.col;
-      else if (f.dir.z == -1) // back face
-        bufferBackColor = f.col;
-    }
-    
-    // find where the buffer needs to go
-    int swapCellX = -1;
-    int swapCellY = -1;
-    int swapCellZ = -1;
-
-    if (bufferUpColor == #FF8D1A || bufferLeftColor == #FF8D1A || bufferBackColor == #FF8D1A)
-      swapCellX = 0;
-    else if (bufferUpColor == #FF0000 || bufferLeftColor == #FF0000 || bufferBackColor == #FF0000)
-      swapCellX = 2;
-    
-    if (bufferUpColor == #FFFFFF || bufferLeftColor == #FFFFFF || bufferBackColor == #FFFFFF)
-      swapCellY = 0;
-    else if (bufferUpColor == #FFFF00 || bufferLeftColor == #FFFF00 || bufferBackColor == #FFFF00)
-      swapCellY = 2;
-    
-    if (bufferUpColor == #0000FF || bufferLeftColor == #0000FF || bufferBackColor == #0000FF)
-      swapCellZ = 0;
-    else if (bufferUpColor == #00FF00 || bufferLeftColor == #00FF00 || bufferBackColor == #00FF00)
-      swapCellZ = 2;
-    
-    // find the direction that the buffer needs to be
-    PVector swapCellDir;
-    
-    if (bufferLeftColor == #FF8D1A)
-      swapCellDir = new PVector(-1, 0, 0);
-    else if (bufferLeftColor == #FF0000)
-       swapCellDir = new PVector(1, 0, 0);
-    else if (bufferLeftColor == #FFFFFF)
-      swapCellDir = new PVector(0, -1, 0);
-    else if (bufferLeftColor == #FFFF00)
-      swapCellDir = new PVector(0, 1, 0);
-    else if (bufferLeftColor == #0000FF)
-      swapCellDir = new PVector(0, 0, -1);
-    else // #00FF00
-      swapCellDir = new PVector(0, 0, 1);
-    
-    // get the setup moves for that specific face
-    ArrayList<TurnAnimation> setUpSequence = getCornerSetupMoves(swapCellX, swapCellY, swapCellZ, swapCellDir);
-
-    // reversed setup moves to put back in it's original place
-    ArrayList<TurnAnimation> reverseSetUpSequence = new ArrayList<TurnAnimation>();
-    
-    for (int i = setUpSequence.size() - 1; i >= 0; i--) {
-      char notationBase = setUpSequence.get(i).getNotationBase();
-      int invertedDirValue = setUpSequence.get(i).getDirValue() * -1;
-      reverseSetUpSequence.add(new TurnAnimation(notationBase, invertedDirValue));
-    }
-
-    // add all turns to the solve sequence
-    solveTurnSequence.addAll(setUpSequence);
-    solveTurnSequence.addAll(Arrays.asList(MOD_Y_PERM_ALG)); 
-    solveTurnSequence.addAll(reverseSetUpSequence);
-  }
-  
   private ArrayList<TurnAnimation> getEdgeSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
     ArrayList<TurnAnimation> setUpSequence = new ArrayList<TurnAnimation>();
     
     // special case
     /*
       When swap is the 2nd letter of a pair and it is a special face
-      in the M slice (C, W, I, S), the swap with the opposite face instead
+      in the M slice (C, W, I, S), then swap with the opposite face instead
     */
     if (edgeSwapCount % 2 == 0) {
       if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
@@ -549,19 +448,16 @@ class ThreeDimCube extends Cube {
           // only check the edge pieces and don't allow for the new cell to be the buffer
           if (cells[i].coloredFaces.size() == 2 && i != 17) {
             // if the cell is in the incorrect position or flipped
-            if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ || //<>//
-                cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
-                cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
-                
-                swapCellX = cells[i].currentX;
-                swapCellY = cells[i].currentY;
-                swapCellZ = cells[i].currentZ;
-                                 
-                swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
-                swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
-                swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
-                
-                break;
+            if (!cells[i].isSolved()) {
+              swapCellX = cells[i].currentX;
+              swapCellY = cells[i].currentY;
+              swapCellZ = cells[i].currentZ;
+                               
+              swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
+              swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
+              swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
+              
+              break;
             }
           }
         }
@@ -587,6 +483,104 @@ class ThreeDimCube extends Cube {
     };
     
     solveTurnSequence.addAll(Arrays.asList(PARITY_ALG));
+  }
+  
+  private void solveCorner() {
+    // Modified Y Perm Algorithm
+    final TurnAnimation[] MOD_Y_PERM_ALG = {
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', -1), // F'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', 1), // F
+      new TurnAnimation('R', 1) // R
+    };
+    
+    // getting the buffer cell's index in the array of all cells
+    int bufferIndex = -1;
+
+    for (int i = 0; i < cells.length; i++) {
+      if (cells[i].currentX == 0 && cells[i].currentY == 0 && cells[i].currentZ == 0) {
+        bufferIndex = i;
+        break;
+      }
+    }
+    
+    // getting the up, left, and back face color of the buffer cell
+    color bufferUpColor = #FFFFFF;
+    color bufferLeftColor = #FFFFFF;
+    color bufferBackColor = #FFFFFF;
+    
+    for (Face f : cells[bufferIndex].coloredFaces) {
+      if (f.dir.y == -1) // up face
+        bufferUpColor = f.col;
+      else if (f.dir.x == -1) // left face
+        bufferLeftColor = f.col;
+      else if (f.dir.z == -1) // back face
+        bufferBackColor = f.col;
+    }
+    
+    // find where the buffer needs to go
+    int swapCellX = -1;
+    int swapCellY = -1;
+    int swapCellZ = -1;
+
+    if (bufferUpColor == #FF8D1A || bufferLeftColor == #FF8D1A || bufferBackColor == #FF8D1A)
+      swapCellX = 0;
+    else if (bufferUpColor == #FF0000 || bufferLeftColor == #FF0000 || bufferBackColor == #FF0000)
+      swapCellX = 2;
+    
+    if (bufferUpColor == #FFFFFF || bufferLeftColor == #FFFFFF || bufferBackColor == #FFFFFF)
+      swapCellY = 0;
+    else if (bufferUpColor == #FFFF00 || bufferLeftColor == #FFFF00 || bufferBackColor == #FFFF00)
+      swapCellY = 2;
+    
+    if (bufferUpColor == #0000FF || bufferLeftColor == #0000FF || bufferBackColor == #0000FF)
+      swapCellZ = 0;
+    else if (bufferUpColor == #00FF00 || bufferLeftColor == #00FF00 || bufferBackColor == #00FF00)
+      swapCellZ = 2;
+    
+    // find the direction that the buffer needs to be
+    PVector swapCellDir;
+    
+    if (bufferLeftColor == #FF8D1A)
+      swapCellDir = new PVector(-1, 0, 0);
+    else if (bufferLeftColor == #FF0000)
+       swapCellDir = new PVector(1, 0, 0);
+    else if (bufferLeftColor == #FFFFFF)
+      swapCellDir = new PVector(0, -1, 0);
+    else if (bufferLeftColor == #FFFF00)
+      swapCellDir = new PVector(0, 1, 0);
+    else if (bufferLeftColor == #0000FF)
+      swapCellDir = new PVector(0, 0, -1);
+    else // #00FF00
+      swapCellDir = new PVector(0, 0, 1);
+    
+    // get the setup moves for that specific face
+    ArrayList<TurnAnimation> setUpSequence = getCornerSetupMoves(swapCellX, swapCellY, swapCellZ, swapCellDir);
+
+    // reversed setup moves to put back in it's original place
+    ArrayList<TurnAnimation> reverseSetUpSequence = new ArrayList<TurnAnimation>();
+    
+    for (int i = setUpSequence.size() - 1; i >= 0; i--) {
+      char notationBase = setUpSequence.get(i).getNotationBase();
+      int invertedDirValue = setUpSequence.get(i).getDirValue() * -1;
+      reverseSetUpSequence.add(new TurnAnimation(notationBase, invertedDirValue));
+    }
+
+    // add all turns to the solve sequence
+    solveTurnSequence.addAll(setUpSequence);
+    solveTurnSequence.addAll(Arrays.asList(MOD_Y_PERM_ALG)); 
+    solveTurnSequence.addAll(reverseSetUpSequence);
   }
   
   private ArrayList<TurnAnimation> getCornerSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
@@ -726,10 +720,7 @@ class ThreeDimCube extends Cube {
           // only check the corner pieces
           if (cells[i].coloredFaces.size() == 3) {
             // if the cell is in the incorrect position or flipped
-            if (cells[i].currentX != cells[i].solvedX || cells[i].currentY != cells[i].solvedY || cells[i].currentZ != cells[i].solvedZ || //<>//
-                cells[i].coloredFaces.get(0).dir.x != cells[i].coloredFaces.get(0).initialDir.x ||
-                cells[i].coloredFaces.get(0).dir.y != cells[i].coloredFaces.get(0).initialDir.y) {
-                  
+            if (!cells[i].isSolved()) {
                 swapCellX = cells[i].currentX;
                 swapCellY = cells[i].currentY;
                 swapCellZ = cells[i].currentZ;
