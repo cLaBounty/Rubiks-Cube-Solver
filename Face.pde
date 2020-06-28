@@ -46,7 +46,7 @@ class Face {
     rectMode(CENTER);
     translate((dir.x / 2) * len, (dir.y / 2) * len, (dir.z / 2) * len);
     
-    // rotate the face relative to the direction
+    // rotate face relative to the direction
     rotateX(dir.y * HALF_PI);
     rotateY(dir.x * HALF_PI);
     
