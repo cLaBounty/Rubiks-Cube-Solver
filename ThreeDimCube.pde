@@ -228,7 +228,6 @@ class ThreeDimCube extends Cube {
   private ArrayList<TurnAnimation> getEdgeSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
     ArrayList<TurnAnimation> setUpSequence = new ArrayList<TurnAnimation>();
     
-    // special case
     /*
       When swap is the 2nd letter of a pair and it is a special face
       in the M slice (C, W, I, S), then swap with the opposite face instead

@@ -125,7 +125,7 @@ abstract class Cube {
   public void scramble() {
     isScrambling = true;
     
-    // reset the turn count
+    // reset turn count
     turnCount = 0; 
   }
     
