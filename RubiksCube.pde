@@ -129,13 +129,13 @@ void draw() {
   textSize(23);
   text("0.25x", LEFT_BTN_X, TOP_SIDE_BTN_Y);
   text("0.5x", LEFT_BTN_X, MIDDLE_BTN);
-  text("0.75x", LEFT_BTN_X, BOT_SIDE_BTN_Y);
+  text("1x", LEFT_BTN_X, BOT_SIDE_BTN_Y);
   
   // right side button text
   textSize(26);
-  text("1x", RIGHT_BTN_X, TOP_SIDE_BTN_Y);
-  text("2x", RIGHT_BTN_X, MIDDLE_BTN);
-  text("5x", RIGHT_BTN_X, BOT_SIDE_BTN_Y);
+  text("2x", RIGHT_BTN_X, TOP_SIDE_BTN_Y);
+  text("5x", RIGHT_BTN_X, MIDDLE_BTN);
+  text("10x", RIGHT_BTN_X, BOT_SIDE_BTN_Y);
   
   camera.endHUD();
 }
@@ -245,23 +245,23 @@ void mousePressed() {
       else if (mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2))) {
         rubiksCube.setTurnSpeed(0.5);
       }
-      // 0.75x speed button
+      // 1x speed button
       else if (mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(0.75);
+        rubiksCube.setTurnSpeed(1);
       }
     }
     else if (mouseX > (RIGHT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (RIGHT_BTN_X + (SIDE_BTN_WIDTH / 2))) {
-      // 1x speed button
-      if (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(1);
-      }
       // 2x speed button
-      else if (mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2))) {
+      if (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
         rubiksCube.setTurnSpeed(2);
       }
       // 5x speed button
-      else if (mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
+      else if (mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2))) {
         rubiksCube.setTurnSpeed(5);
+      }
+      // 10x speed button
+      else if (mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
+        rubiksCube.setTurnSpeed(10);
       }
     }
     else if (isCubeMoveable) {

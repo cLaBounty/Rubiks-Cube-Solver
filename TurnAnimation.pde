@@ -52,7 +52,7 @@ class TurnAnimation {
   
   void update() {
     if (rubiksCube.isSolving)
-      angle += dirValue * 0.06 * rubiksCube.turnSpeed;
+      angle += dirValue * 0.055 * rubiksCube.turnSpeed;
     else
       angle += dirValue * 0.35;
     

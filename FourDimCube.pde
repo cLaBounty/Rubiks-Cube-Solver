@@ -30,6 +30,8 @@ class FourDimCube extends Cube {
   private int centerSwapCount;
   // counter to determine if parity is needed after solving wings
   private int wingSwapCount;
+  // counter to determine if parity is needed after solving corners
+  private int cornerSwapCount;
   
   // constructor
   FourDimCube() {
@@ -46,6 +48,9 @@ class FourDimCube extends Cube {
     turnZBases = new char[]{'B', 'b', 'f', 'F'};
     
     solvePhase = 1;
+    centerSwapCount = 0;
+    wingSwapCount = 0;
+    cornerSwapCount = 0;
   }
   
   public void solve() {
@@ -55,6 +60,9 @@ class FourDimCube extends Cube {
     solveTurnSequence.removeAll(solveTurnSequence);
     turnCount = 0;
     solvePhase = 1;
+    centerSwapCount = 0;
+    wingSwapCount = 0;
+    cornerSwapCount = 0;
   }
   
   protected void setNextTurns() {
@@ -77,7 +85,7 @@ class FourDimCube extends Cube {
       }
       else {
         // Parity Algorithm (only if an odd # of wings were moved)
-        if (wingSwapCount % 2 == 1)
+        if (wingSwapCount % 2 == 1) //<>//
           addWingParityAlgorithm();
         
         // next phase
@@ -85,12 +93,19 @@ class FourDimCube extends Cube {
       }
     }
     else if (solvePhase == 3) {
-      /*
-      if (!isSolved()) MUST CHANGE to account for centers and wings in wrong positions
+      if (!isCubeFixed())
         solveCorner();
-      else
-        isSolving = false;
-      */
+      else {
+        // Parity Algorithm (only if an odd # of corners were moved)
+        if (cornerSwapCount % 2 == 1)
+          addCornerParityAlgorithm();
+        
+        // next phase
+        solvePhase++;
+      }
+    }
+    else if (solvePhase == 4) { // finished
+      isSolving = false;
     }
   }
 
@@ -99,9 +114,9 @@ class FourDimCube extends Cube {
     for (int i = 5; i < (cells.length - 5); i++) { // first center is at index 5 and last is at cells.length - 5
       // only check if the center pieces are unsolved
       if (cells[i].coloredFaces.size() == 1) {
-        if (!((cells[i].solvedX == 0 || cells[i].solvedX == 3) && cells[i].currentX == cells[i].solvedX) &&
-            !((cells[i].solvedY == 0 || cells[i].solvedY == 3) && cells[i].currentY == cells[i].solvedY) &&
-            !((cells[i].solvedZ == 0 || cells[i].solvedZ == 3) && cells[i].currentZ == cells[i].solvedZ)) {
+        if (!(cells[i].currentX == cells[i].solvedX && (cells[i].solvedX == 0 || cells[i].solvedX == 3)) &&
+            !(cells[i].currentY == cells[i].solvedY && (cells[i].solvedY == 0 || cells[i].solvedY == 3)) &&
+            !(cells[i].currentZ == cells[i].solvedZ && (cells[i].solvedZ == 0 || cells[i].solvedZ == 3))) {
               return false;
         }
       }
@@ -137,6 +152,45 @@ class FourDimCube extends Cube {
     
     // if less than 2 cells are off in the M slice, then the edges are fixed
     if (parityCounter > 2)
+      return false;
+    else
+      return true;
+  }
+  
+  private boolean isCubeFixed() {
+    
+    // counter to determine how many cells on the top left/back are unsolved of flipped
+    int parityCounter = 0;
+    
+    for (Cell c : cells) {
+      if (c.coloredFaces.size() == 1) { // centers
+        if (!(c.currentX == c.solvedX && (c.solvedX == 0 || c.solvedX == 3)) &&
+            !(c.currentY == c.solvedY && (c.solvedY == 0 || c.solvedY == 3)) &&
+            !(c.currentZ == c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3))) {
+              return false;
+        }
+      }
+      else if (c.coloredFaces.size() == 2) { // wings
+        // if the cell is in the incorrect position or flipped
+        if (!(c.currentX == c.solvedX && (c.currentY == c.solvedY || c.currentZ == c.solvedZ)) ||
+            !(c.currentY == c.solvedY && (c.currentX == c.solvedX || c.currentZ == c.solvedZ)) ||
+            !(c.currentZ == c.solvedZ && (c.currentX == c.solvedX || c.currentY == c.solvedY))) {
+              // allow for 2 cells to be off on the top left/back
+              if (c.currentY == 0 && (c.currentX == 0 || c.currentZ == 0))
+                parityCounter++;
+              else
+                return false;
+        }
+      }
+      else if (c.coloredFaces.size() == 3) { // corners
+        if (!c.isSolved()) {
+          return false; 
+        }
+      }
+    }
+
+    // if less than 4 cells are off on the top left/back, then the edges are fixed
+    if (parityCounter > 4)
       return false;
     else
       return true;
@@ -649,203 +703,333 @@ class FourDimCube extends Cube {
     
     // rare case when the swap cell is also the buffer
     boolean isBuffer;
+     //<>//
+    /*
+      When the swap cell is also the buffer, it choses a random face on an unsolved cell.
+      If the face chosen is not the furthest clockwise, then the other face will be chosen
+    */
+    boolean wrongSide;
+    
+    // index of the new unsolved cell when the swap cell is also the buffer
+    int swapCellIndex = 0;
     
     do {
       isBuffer = false;
-      
+      wrongSide = false;
+
       if (swapCellDir.y == -1) {
         if (swapCellZ == 0) { // A face
           // special case - add directly to solve sequence
           println("A");
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+          
+          if (swapCellX == -1 || swapCellX == 2) {
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+          }
+          else
+            wrongSide = true;
+            
         }
         else if (swapCellX == 3) { // B face
           println("B");
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
-          setUpSequence.add(new TurnAnimation('R', -1)); // R'
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
+          
+          if (swapCellZ == -1 || swapCellZ == 2) {
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellZ == 3) { // C face
           // special case - add directly to solve sequence
           println("C");
-          solveTurnSequence.add(new TurnAnimation('l', 1)); // l'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+          
+          if (swapCellX == -1 || swapCellX == 1) {
+            solveTurnSequence.add(new TurnAnimation('l', 1)); // l'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellX == 0) { // D face
           println("D");
-          setUpSequence.add(new TurnAnimation('L', 1)); // L'
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
+          
+          if (swapCellZ == -1 || swapCellZ == 1) {
+            setUpSequence.add(new TurnAnimation('L', 1)); // L'
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+          }
+          else
+            wrongSide = true;
+          
         }
       }
       else if (swapCellDir.x == -1) {
         if (swapCellY == 0) { // E face
           println("E");
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
-          setUpSequence.add(new TurnAnimation('L', 1)); // L'
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          
+          if (swapCellZ == -1 || swapCellZ == 2) {
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+            setUpSequence.add(new TurnAnimation('L', 1)); // L'
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellZ == 3) { // F face
           println("F");
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          
+          if (swapCellY == -1 || swapCellY == 2) {
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellY == 3) { // G face
           println("G");
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          
+          if (swapCellZ == -1 || swapCellZ == 1) {
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellZ == 0) { // H face
           println("H");
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
-          setUpSequence.add(new TurnAnimation('L', 1)); // L'
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          
+          if (swapCellY == -1 || swapCellY == 1) {
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+            setUpSequence.add(new TurnAnimation('L', 1)); // L'
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          }
+          else
+            wrongSide = true;
+          
         }      
       }
       else if (swapCellDir.z == 1) {
         if (swapCellY == 0) { // I face
           // special case - add directly to solve sequence
           println("I");
-          solveTurnSequence.add(new TurnAnimation('D', -1)); // D
-          solveTurnSequence.add(new TurnAnimation('r', 1)); // r
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('D', -1)); // D
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+                    
+          if (swapCellX == -1 || swapCellX == 2) {
+            solveTurnSequence.add(new TurnAnimation('D', -1)); // D
+            solveTurnSequence.add(new TurnAnimation('r', 1)); // r
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('D', -1)); // D
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellX == 3) { // J face
           println("J");
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
+                    
+          if (swapCellY == -1 || swapCellY == 2) {
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellY == 3) { // K face
           println("K");
-          solveTurnSequence.add(new TurnAnimation('l', -1)); // l
-          solveTurnSequence.add(new TurnAnimation('l', -1)); // l
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('l', -1)); // l
-          solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+                    
+          if (swapCellX == -1 || swapCellX == 1) {
+            solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+            solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+            solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellX == 0) { // L face
           println("L");
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
-          setUpSequence.add(new TurnAnimation('L', 1)); // L'
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
+          
+          if (swapCellY == -1 || swapCellY == 1) {
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+            setUpSequence.add(new TurnAnimation('L', 1)); // L'
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+          }
+          else
+            wrongSide = true;
+          
         }
       }
       else if (swapCellDir.x == 1) {
         if (swapCellY == 0) { // M face
           println("M");
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
+          
+          if (swapCellZ == -1 || swapCellZ == 1) {
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellZ == 0) { // N face
           println("N");
-          setUpSequence.add(new TurnAnimation('R', -1)); // R'
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
+                    
+          if (swapCellY == -1 || swapCellY == 2) {
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellY == 3) { // O face
           println("O");
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
-          setUpSequence.add(new TurnAnimation('R', -1)); // R'
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
+                    
+          if (swapCellZ == -1 || swapCellZ == 2) {
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellZ == 3) { // P face
           println("P");
-          setUpSequence.add(new TurnAnimation('B', 1)); // B'
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('B', -1)); // B
+                    
+          if (swapCellY == -1 || swapCellY == 1) {
+            setUpSequence.add(new TurnAnimation('B', 1)); // B'
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('B', -1)); // B
+          }
+          else
+            wrongSide = true;
+          
         }
       }
       else if (swapCellDir.z == -1) {
         if (swapCellY == 0) { // Q face
           // special case - add directly to solve sequence
           println("Q");
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+                    
+          if (swapCellX == -1 || swapCellX == 1) {
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellX == 0) { // R face
           println("R");
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
+          
+          if (swapCellY == -1 || swapCellY == 2) {
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellY == 3) { // S face
           // special case - add directly to solve sequence
           println("S");
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('D', -1)); // D
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('r', 1)); // r
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
+                    
+          if (swapCellX == -1 || swapCellX == 2) {
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('D', -1)); // D
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('r', 1)); // r
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellX == 3) { // T face
           println("T");
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
-          setUpSequence.add(new TurnAnimation('R', -1)); // R'
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
+                    
+          if (swapCellY == -1 || swapCellY == 1) {
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+          }
+          else
+            wrongSide = true;
+          
         }
       }
       else { // swapCellDir.y == 1
@@ -855,35 +1039,53 @@ class FourDimCube extends Cube {
         }
         else if (swapCellX == 3) { // V face
           println("V");
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('R', 1)); // R
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
+                    
+          if (swapCellZ == -1 || swapCellZ == 1) {
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellZ == 0) { // W face
           // special case - add directly to solve sequence
           println("W");
-          solveTurnSequence.add(new TurnAnimation('l', -1)); // l
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('l', 1)); // l'
+                    
+          if (swapCellX == -1 || swapCellX == 1) {
+            solveTurnSequence.add(new TurnAnimation('l', -1)); // l
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+            solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
+            solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('l', 1)); // l'
+          }
+          else
+            wrongSide = true;
+          
         }
         else if (swapCellX == 0) { // X face
           println("X");
-          setUpSequence.add(new TurnAnimation('U', -1)); // U'
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('L', -1)); // L
-          setUpSequence.add(new TurnAnimation('U', 1)); // U
+                    
+          if (swapCellZ == -1 || swapCellZ == 2) {
+            setUpSequence.add(new TurnAnimation('U', -1)); // U'
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('L', -1)); // L
+            setUpSequence.add(new TurnAnimation('U', 1)); // U
+          }
+          else
+            wrongSide = true;
+          
         }
       }
       
@@ -893,25 +1095,34 @@ class FourDimCube extends Cube {
         for (int i = 1; i < cells.length - 1; i++) {
           // only check the edge pieces and don't allow for the new cell to be the buffer
           if (cells[i].coloredFaces.size() == 2 && i != 47) {
-            // if the cell is in the incorrect position or flipped
-            if (!cells[i].isSolved()) {
-              swapCellX = cells[i].currentX;
-              swapCellY = cells[i].currentY;
-              swapCellZ = cells[i].currentZ;
+            // 
+            if (!(cells[i].currentX == cells[i].solvedX && (cells[i].currentY == cells[i].solvedY || cells[i].currentZ == cells[i].solvedZ)) ||
+                !(cells[i].currentY == cells[i].solvedY && (cells[i].currentX == cells[i].solvedX || cells[i].currentZ == cells[i].solvedZ)) ||
+                !(cells[i].currentZ == cells[i].solvedZ && (cells[i].currentX == cells[i].solvedX || cells[i].currentY == cells[i].solvedY))) {
+                
+                  swapCellX = cells[i].currentX;
+                  swapCellY = cells[i].currentY;
+                  swapCellZ = cells[i].currentZ;
               
+                  swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
+                  swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
+                  swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
               
-              // NEED TO CHOOSE THE FACE THAT IS FURTHEST CLOCKWISE
-              
-              swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
-              swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
-              swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
-              
-              break;
+                  swapCellIndex = i;
+                  
+                  break;
             }
           }
         }
       }
-    } while (isBuffer);
+      // if the wrong side is chosen when the swap cell is also the buffer
+      else if (wrongSide) {
+        swapCellDir.x = cells[swapCellIndex].coloredFaces.get(1).dir.x;
+        swapCellDir.y = cells[swapCellIndex].coloredFaces.get(1).dir.y;
+        swapCellDir.z = cells[swapCellIndex].coloredFaces.get(1).dir.z;
+      }
+      
+    } while (isBuffer || wrongSide);
     
     return setUpSequence;
   }
@@ -948,4 +1159,314 @@ class FourDimCube extends Cube {
     
     solveTurnSequence.addAll(Arrays.asList(PARITY_ALG));
   }
+  
+  private void solveCorner() {
+    // Modified Y Perm Algorithm
+    final TurnAnimation[] MOD_Y_PERM_ALG = {
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', -1), // F'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', 1), // F
+      new TurnAnimation('R', 1) // R
+    };
+    
+    // getting the buffer cell's index in the array of all cells
+    int bufferIndex = -1;
+
+    for (int i = 0; i < cells.length; i++) {
+      if (cells[i].currentX == 0 && cells[i].currentY == 0 && cells[i].currentZ == 0) {
+        bufferIndex = i;
+        break;
+      }
+    }
+    
+    // getting the up, left, and back face color of the buffer cell
+    color bufferUpColor = #FFFFFF;
+    color bufferLeftColor = #FFFFFF;
+    color bufferBackColor = #FFFFFF;
+    
+    for (Face f : cells[bufferIndex].coloredFaces) {
+      if (f.dir.y == -1) // up face
+        bufferUpColor = f.col;
+      else if (f.dir.x == -1) // left face
+        bufferLeftColor = f.col;
+      else if (f.dir.z == -1) // back face
+        bufferBackColor = f.col;
+    }
+    
+    // find where the buffer needs to go
+    int swapCellX = -1;
+    int swapCellY = -1;
+    int swapCellZ = -1;
+
+    if (bufferUpColor == #FF8D1A || bufferLeftColor == #FF8D1A || bufferBackColor == #FF8D1A)
+      swapCellX = 0;
+    else if (bufferUpColor == #FF0000 || bufferLeftColor == #FF0000 || bufferBackColor == #FF0000)
+      swapCellX = 3;
+    
+    if (bufferUpColor == #FFFFFF || bufferLeftColor == #FFFFFF || bufferBackColor == #FFFFFF)
+      swapCellY = 0;
+    else if (bufferUpColor == #FFFF00 || bufferLeftColor == #FFFF00 || bufferBackColor == #FFFF00)
+      swapCellY = 3;
+    
+    if (bufferUpColor == #0000FF || bufferLeftColor == #0000FF || bufferBackColor == #0000FF)
+      swapCellZ = 0;
+    else if (bufferUpColor == #00FF00 || bufferLeftColor == #00FF00 || bufferBackColor == #00FF00)
+      swapCellZ = 3;
+    
+    // find the direction that the buffer needs to be
+    PVector swapCellDir;
+    
+    if (bufferLeftColor == #FF8D1A)
+      swapCellDir = new PVector(-1, 0, 0);
+    else if (bufferLeftColor == #FF0000)
+       swapCellDir = new PVector(1, 0, 0);
+    else if (bufferLeftColor == #FFFFFF)
+      swapCellDir = new PVector(0, -1, 0);
+    else if (bufferLeftColor == #FFFF00)
+      swapCellDir = new PVector(0, 1, 0);
+    else if (bufferLeftColor == #0000FF)
+      swapCellDir = new PVector(0, 0, -1);
+    else // #00FF00
+      swapCellDir = new PVector(0, 0, 1);
+    
+    // increment the corner swap counter
+    cornerSwapCount++;
+    
+    // get the setup moves for that specific face
+    ArrayList<TurnAnimation> setUpSequence = getCornerSetupMoves(swapCellX, swapCellY, swapCellZ, swapCellDir);
+
+    // reversed setup moves to put back in it's original place
+    ArrayList<TurnAnimation> reverseSetUpSequence = new ArrayList<TurnAnimation>();
+    
+    for (int i = setUpSequence.size() - 1; i >= 0; i--) {
+      char notationBase = setUpSequence.get(i).getNotationBase();
+      int invertedDirValue = setUpSequence.get(i).getDirValue() * -1;
+      reverseSetUpSequence.add(new TurnAnimation(notationBase, invertedDirValue));
+    }
+
+    // add all turns to the solve sequence
+    solveTurnSequence.addAll(setUpSequence);
+    solveTurnSequence.addAll(Arrays.asList(MOD_Y_PERM_ALG)); 
+    solveTurnSequence.addAll(reverseSetUpSequence);
+    
+  }
+  
+  private ArrayList<TurnAnimation> getCornerSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
+    ArrayList<TurnAnimation> setUpSequence = new ArrayList<TurnAnimation>();
+    
+    // rare case when the swap cell is also the buffer
+    boolean isBuffer;
+    
+    do {
+      isBuffer = false;
+      
+      if (swapCellDir.y == -1) {
+        if (swapCellZ == 0) {
+          if (swapCellX == 0) { // A face
+            isBuffer = true;
+          }
+          else if (swapCellX == 3) { // B face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+          }
+        }
+        else if (swapCellZ == 3) {
+          if (swapCellX == 3) { // C face           
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+          }
+          else if (swapCellX == 0) { // D face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+        }
+      }
+      else if (swapCellDir.x == -1) {
+        if (swapCellY == 0) {
+          if (swapCellZ == 0) { // E face
+            isBuffer = true;
+          }
+          else if (swapCellZ == 3) { // F face
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+          }
+        }
+        else if (swapCellY == 3) {
+          if (swapCellZ == 3) { // G face
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+          }
+          else if (swapCellZ == 0) { // H face
+            setUpSequence.add(new TurnAnimation('D', 1)); // D'
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+          }
+        }      
+      }
+      else if (swapCellDir.z == 1) {
+        if (swapCellY == 0) {
+          if (swapCellX == 0) { // I face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+          else if (swapCellX == 3) { // J face
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+        }
+        else if (swapCellY == 3) {
+          if (swapCellX == 3) { // K face
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+          else if (swapCellX == 0) { // L face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+        }
+      }
+      else if (swapCellDir.x == 1) {
+        if (swapCellY == 0) {
+          if (swapCellZ == 3) { // M face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+          else if (swapCellZ == 0) { // N face
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+        }
+        else if (swapCellY == 3) {
+          if (swapCellZ == 0) { // O face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+          else if (swapCellZ == 3) { // P face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+        }
+      }
+      else if (swapCellDir.z == -1) {
+        if (swapCellY == 0) {
+          if (swapCellX == 3) { // Q face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('D', 1)); // D'
+          }
+          else if (swapCellX == 0) { // R face
+            isBuffer = true;
+          }
+        }
+        else if (swapCellY == 3) {
+          if (swapCellX == 0) { // S face
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+          }
+          else if (swapCellX == 3) { // T face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+          }
+        }
+      }
+      else { // swapCellDir.y == 1
+        if (swapCellX == 0 && swapCellZ == 2) { // U face
+          setUpSequence.add(new TurnAnimation('D', -1)); // D
+        }
+        else if (swapCellZ == 0) {
+          if (swapCellX == 3) { // W face
+            setUpSequence.add(new TurnAnimation('D', 1)); // D'
+          }
+          else if (swapCellX == 0) { // X face
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+          }
+        }
+      }
+      
+      // if the swap cell is the buffer, then pick any unsolved or flipped piece
+      if (isBuffer) {
+        // don't allow for the new cell to be the buffer at index 0
+        for (int i = 1; i < cells.length; i++) {
+          // only check the corner pieces
+          if (cells[i].coloredFaces.size() == 3) {
+            // if the cell is in the incorrect position or flipped
+            if (!cells[i].isSolved()) {
+                swapCellX = cells[i].currentX;
+                swapCellY = cells[i].currentY;
+                swapCellZ = cells[i].currentZ;
+                
+                swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
+                swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
+                swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
+                
+                break;
+            }
+          }
+        }
+      }
+    } while (isBuffer);
+    
+    return setUpSequence;
+  }
+  
+  private void addCornerParityAlgorithm() {
+    // Parity Algorithm
+    final TurnAnimation[] PARITY_ALG = {
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('r', -1), // r'
+      new TurnAnimation('r', -1), // r'
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('r', -1), // r'
+      new TurnAnimation('r', -1), // r'
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('u', 1), // u
+      new TurnAnimation('u', 1), // u
+      new TurnAnimation('r', -1), // r'
+      new TurnAnimation('r', -1), // r'
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('u', 1), // u
+      new TurnAnimation('u', 1), // u
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('U', 1), // U
+    };
+    
+    solveTurnSequence.addAll(Arrays.asList(PARITY_ALG));
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }
