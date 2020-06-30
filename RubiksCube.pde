@@ -81,7 +81,7 @@ void draw() {
       cursor(HAND);
     }
   }
-  
+    
   // HUD
   camera.beginHUD();
 
@@ -129,6 +129,7 @@ void draw() {
   textSize(23);
   text("0.25x", LEFT_BTN_X, TOP_SIDE_BTN_Y);
   text("0.5x", LEFT_BTN_X, MIDDLE_BTN);
+  textSize(25);
   text("1x", LEFT_BTN_X, BOT_SIDE_BTN_Y);
   
   // right side button text

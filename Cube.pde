@@ -111,10 +111,8 @@ abstract class Cube {
     // if any cell is not in it's solved location, then the cube is not solved
     for (Cell c : cells) {
       if (c.coloredFaces.size() > 0) { // disregard the cell in the middle of the cube
-        if (c.currentX != c.solvedX || c.currentY != c.solvedY || c.currentZ != c.solvedZ ||
-            c.coloredFaces.get(0).dir.x != c.coloredFaces.get(0).initialDir.x ||
-            c.coloredFaces.get(0).dir.y != c.coloredFaces.get(0).initialDir.y) {
-              return false;
+        if (!c.isSolved()) {
+          return false;
         }
       }
     }
