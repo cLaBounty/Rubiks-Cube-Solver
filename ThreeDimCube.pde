@@ -38,7 +38,7 @@ class ThreeDimCube extends Cube {
     edgeSwapCount = 0;
   }
   
-  protected void setNextTurns() {
+  protected void setNextTurns() {   
     if (solvePhase == 1) {
       alignWhiteCenter();
       
@@ -228,7 +228,17 @@ class ThreeDimCube extends Cube {
   private ArrayList<TurnAnimation> getEdgeSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
     ArrayList<TurnAnimation> setUpSequence = new ArrayList<TurnAnimation>();
     
-    /*
+    //
+    
+    // rare case when the swap cell is also the buffer
+    boolean isBuffer;
+    
+    do {
+      isBuffer = false;
+      
+      
+      
+      /*
       When swap is the 2nd letter of a pair and it is a special face
       in the M slice (C, W, I, S), then swap with the opposite face instead
     */
@@ -254,12 +264,9 @@ class ThreeDimCube extends Cube {
         swapCellZ = 2;
       }
     }
-    
-    // rare case when the swap cell is also the buffer
-    boolean isBuffer;
-    
-    do {
-      isBuffer = false;
+      
+      
+      
       
       if (swapCellDir.y == -1) {
         if (swapCellZ == 0) { // A face
@@ -466,7 +473,6 @@ class ThreeDimCube extends Cube {
       
       // if the swap cell is the buffer, then pick any unsolved or flipped piece
       if (isBuffer) {
-        
         // first edge is at index 1 and last is at cells.length - 1
         for (int i = 1; i < cells.length - 1; i++) {
           // only check the edge pieces and don't allow for the new cell to be the buffer
@@ -487,23 +493,33 @@ class ThreeDimCube extends Cube {
             }
           }
         }
-                
+        
+        // FIX: Reset the M slice when all other edge cells are solved
         if (swapCellX == 1 && edgeSwapCount % 2 == 0) {
           
-          // W Y Y B B G : NEED
+          println("BUG"); //<>//
           
-          // B Y Y B B G : GOT
-          // ? Y Y B B Y : GOT
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
           
-          println(edgeSwapCount); //<>//
+          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
+          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
           
-          //addParityAlgorithm();
-          
-          //solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          //solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          //addParityAlgorithm();
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
           
           return setUpSequence;
+        
         }
         
       }

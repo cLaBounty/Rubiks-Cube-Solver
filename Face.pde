@@ -17,15 +17,15 @@ class Face {
      
      switch(fixedAxis) {
        case 'X': {
+         temp.x = dir.x; // fixed
          temp.y = -dir.z * dirValue;
          temp.z = dir.y * dirValue;
-         temp.x = dir.x; // fixed
          break;  
        }
        case 'Y': {
          temp.x = -dir.z * dirValue;
-         temp.z = dir.x * dirValue;
          temp.y = dir.y; // fixed
+         temp.z = dir.x * dirValue;
          break;  
        }
        case 'Z': {
