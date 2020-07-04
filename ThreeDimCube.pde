@@ -228,62 +228,54 @@ class ThreeDimCube extends Cube {
   private ArrayList<TurnAnimation> getEdgeSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
     ArrayList<TurnAnimation> setUpSequence = new ArrayList<TurnAnimation>();
     
-    //
-    
     // rare case when the swap cell is also the buffer
-    boolean isBuffer;
+    boolean isFrontBuffer;
+    boolean isBottomBuffer;
     
     do {
-      isBuffer = false;
-      
-      
+      isFrontBuffer = false;
+      isBottomBuffer = false;
       
       /*
-      When swap is the 2nd letter of a pair and it is a special face
-      in the M slice (C, W, I, S), then swap with the opposite face instead
-    */
-    if (edgeSwapCount % 2 == 0) {
-      if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
-        swapCellDir.y = 1;
-        swapCellY = 2;
-        swapCellZ = 0;
+        When swap is the 2nd letter of a pair and it is a special face
+        in the M slice (C, W, I, S), then swap with the opposite face instead
+      */
+      if (edgeSwapCount % 2 == 0) {
+        if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
+          swapCellDir.y = 1;
+          swapCellY = 2;
+          swapCellZ = 0;
+        }
+        else if (swapCellDir.y == 1 && swapCellZ == 0) { // W face to C Face
+          swapCellDir.y = -1;
+          swapCellY = 0;
+          swapCellZ = 2;
+        }
+        else if (swapCellDir.z == 1 && swapCellY == 0) { // I Face to S Face
+          swapCellDir.z = -1;
+          swapCellY = 2;
+          swapCellZ = 0;
+        }
+        else if (swapCellDir.z == -1 && swapCellY == 2) { // S Face to I Face
+          swapCellDir.z = 1;
+          swapCellY = 0;
+          swapCellZ = 2;
+        }
       }
-      else if (swapCellDir.y == 1 && swapCellZ == 0) { // W face to C Face
-        swapCellDir.y = -1;
-        swapCellY = 0;
-        swapCellZ = 2;
-      }
-      else if (swapCellDir.z == 1 && swapCellY == 0) { // I Face to S Face
-        swapCellDir.z = -1;
-        swapCellY = 2;
-        swapCellZ = 0;
-      }
-      else if (swapCellDir.z == -1 && swapCellY == 2) { // S Face to I Face
-        swapCellDir.z = 1;
-        swapCellY = 0;
-        swapCellZ = 2;
-      }
-    }
-      
-      
-      
       
       if (swapCellDir.y == -1) {
         if (swapCellZ == 0) { // A face
-        println("A");
           // special case - add directly to solve sequence
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
         }
         else if (swapCellX == 2) { // B face
-        println("B");
           setUpSequence.add(new TurnAnimation('R', 1)); // R
           setUpSequence.add(new TurnAnimation('U', 1)); // U
           setUpSequence.add(new TurnAnimation('R', -1)); // R'
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
         }
         else if (swapCellZ == 2) { // C face
-        println("C");
           // special case - add directly to solve sequence
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
@@ -293,7 +285,6 @@ class ThreeDimCube extends Cube {
           solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
         }
         else if (swapCellX == 0) { // D face
-        println("D");
           setUpSequence.add(new TurnAnimation('L', 1)); // L'
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
           setUpSequence.add(new TurnAnimation('L', -1)); // L
@@ -302,26 +293,22 @@ class ThreeDimCube extends Cube {
       }
       else if (swapCellDir.x == -1) {
         if (swapCellY == 0) { // E face
-        println("E");
           setUpSequence.add(new TurnAnimation('B', -1)); // B
           setUpSequence.add(new TurnAnimation('L', 1)); // L'
           setUpSequence.add(new TurnAnimation('B', 1)); // B'
         }
         else if (swapCellZ == 2) { // F face
-        println("F");
           setUpSequence.add(new TurnAnimation('B', -1)); // B
           setUpSequence.add(new TurnAnimation('L', -1)); // L
           setUpSequence.add(new TurnAnimation('L', -1)); // L
           setUpSequence.add(new TurnAnimation('B', 1)); // B'
         }
         else if (swapCellY == 2) { // G face
-        println("G");
           setUpSequence.add(new TurnAnimation('B', -1)); // B
           setUpSequence.add(new TurnAnimation('L', -1)); // L
           setUpSequence.add(new TurnAnimation('B', 1)); // B'
         }
         else if (swapCellZ == 0) { // H face
-        println("H");
           setUpSequence.add(new TurnAnimation('L', -1)); // L
           setUpSequence.add(new TurnAnimation('B', -1)); // B
           setUpSequence.add(new TurnAnimation('L', 1)); // L'
@@ -330,7 +317,6 @@ class ThreeDimCube extends Cube {
       }
       else if (swapCellDir.z == 1) {
         if (swapCellY == 0) { // I face
-        println("I");
           // special case - add directly to solve sequence
           solveTurnSequence.add(new TurnAnimation('D', -1)); // D
           solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
@@ -348,17 +334,14 @@ class ThreeDimCube extends Cube {
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
         }
         else if (swapCellX == 2) { // J face
-        println("J");
           setUpSequence.add(new TurnAnimation('U', 1)); // U
           setUpSequence.add(new TurnAnimation('R', 1)); // R
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
         }
         else if (swapCellY == 2) { // K face
-        println("K");
-          isBuffer = true;
+          isFrontBuffer = true;
         }
         else if (swapCellX == 0) { // L face
-        println("L");
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
           setUpSequence.add(new TurnAnimation('L', 1)); // L'
           setUpSequence.add(new TurnAnimation('U', 1)); // U
@@ -366,26 +349,22 @@ class ThreeDimCube extends Cube {
       }
       else if (swapCellDir.x == 1) {
         if (swapCellY == 0) { // M face
-        println("M");
           setUpSequence.add(new TurnAnimation('B', 1)); // B'
           setUpSequence.add(new TurnAnimation('R', 1)); // R
           setUpSequence.add(new TurnAnimation('B', -1)); // B
         }
         else if (swapCellZ == 0) { // N face
-        println("N");
           setUpSequence.add(new TurnAnimation('R', -1)); // R'
           setUpSequence.add(new TurnAnimation('B', 1)); // B'
           setUpSequence.add(new TurnAnimation('R', 1)); // R
           setUpSequence.add(new TurnAnimation('B', -1)); // B
         }
         else if (swapCellY == 2) { // O face
-        println("O");
           setUpSequence.add(new TurnAnimation('B', 1)); // B'
           setUpSequence.add(new TurnAnimation('R', -1)); // R'
           setUpSequence.add(new TurnAnimation('B', -1)); // B
         }
         else if (swapCellZ == 2) { // P face
-        println("P");
           setUpSequence.add(new TurnAnimation('B', 1)); // B'
           setUpSequence.add(new TurnAnimation('R', 1)); // R
           setUpSequence.add(new TurnAnimation('R', 1)); // R
@@ -394,7 +373,6 @@ class ThreeDimCube extends Cube {
       }
       else if (swapCellDir.z == -1) {
         if (swapCellY == 0) { // Q face
-        println("Q");
           // special case - add directly to solve sequence
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
           solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
@@ -410,13 +388,11 @@ class ThreeDimCube extends Cube {
           solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
         }
         else if (swapCellX == 0) { // R face
-        println("R");
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
           setUpSequence.add(new TurnAnimation('L', -1)); // L
           setUpSequence.add(new TurnAnimation('U', 1)); // U
         }
         else if (swapCellY == 2) { // S face
-        println("S");
           // special case - add directly to solve sequence
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
@@ -434,7 +410,6 @@ class ThreeDimCube extends Cube {
           solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
         }
         else if (swapCellX == 2) { // T face
-        println("T");
           setUpSequence.add(new TurnAnimation('U', 1)); // U
           setUpSequence.add(new TurnAnimation('R', -1)); // R'
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
@@ -442,18 +417,15 @@ class ThreeDimCube extends Cube {
       }
       else { // swapCellDir.y == 1
         if (swapCellZ == 2) { // U face
-        println("U");
-          isBuffer = true;
+          isBottomBuffer = true;
         }
         else if (swapCellX == 2) { // V face
-        println("V");
           setUpSequence.add(new TurnAnimation('U', 1)); // U
           setUpSequence.add(new TurnAnimation('R', 1)); // R
           setUpSequence.add(new TurnAnimation('R', 1)); // R
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
         }
         else if (swapCellZ == 0) { // W face
-        println("W");
           // special case - add directly to solve sequence
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
@@ -463,7 +435,6 @@ class ThreeDimCube extends Cube {
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
         }
         else if (swapCellX == 0) { // X face
-        println("X");
           setUpSequence.add(new TurnAnimation('U', -1)); // U'
           setUpSequence.add(new TurnAnimation('L', -1)); // L
           setUpSequence.add(new TurnAnimation('L', -1)); // L
@@ -472,7 +443,7 @@ class ThreeDimCube extends Cube {
       }
       
       // if the swap cell is the buffer, then pick any unsolved or flipped piece
-      if (isBuffer) {
+      if (isFrontBuffer || isBottomBuffer) {
         // first edge is at index 1 and last is at cells.length - 1
         for (int i = 1; i < cells.length - 1; i++) {
           // only check the edge pieces and don't allow for the new cell to be the buffer
@@ -494,14 +465,16 @@ class ThreeDimCube extends Cube {
           }
         }
         
-        // FIX: Reset the M slice when all other edge cells are solved
-        if (swapCellX == 1 && edgeSwapCount % 2 == 0) {
-          
-          println("BUG"); //<>//
-          
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          
+        /*
+          PROBLEM: When there are only unsolved pieces in the M slice, the
+          buffer is the swap cell, and it is the 2nd letter in the pair,
+          it will chose the same piece over and over again and the cube
+          will never get solved.
+          SOLUTION: Manually chose the order of the faces to swap with
+          based on whether or not the target cell is solved.
+        */
+        if (isFrontBuffer && swapCellX == 1 && edgeSwapCount % 2 == 0) {
+          // Q Face
           solveTurnSequence.add(new TurnAnimation('U', 1)); // U
           solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
           solveTurnSequence.add(new TurnAnimation('R', 1)); // R
@@ -514,16 +487,45 @@ class ThreeDimCube extends Cube {
           solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
           solveTurnSequence.add(new TurnAnimation('B', -1)); // B
           solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+
+          if (cells[9].isSolved()) {
+            // C Face
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
+            
+            // S Face
+            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+            solveTurnSequence.add(new TurnAnimation('D', -1)); // D
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+            solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
+            
+            edgeSwapCount += 2;
+          }
           
+          // A Face
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          
+          edgeSwapCount++;
           
           return setUpSequence;
-        
         }
-        
       }
-    } while (isBuffer);
+    } while (isFrontBuffer || isBottomBuffer);
     
     return setUpSequence;
   }

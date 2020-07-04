@@ -168,7 +168,7 @@ boolean checkButtonHover() {
   
   return false;
 }
- //<>//
+
 void mousePressed() {
   if (mouseButton == LEFT) {
     if (mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2))) {
@@ -267,6 +267,18 @@ void mousePressed() {
     }
     else if (isCubeMoveable) {
       // edit cube by clicking
+    }
+  }
+}
+
+void keyPressed() {
+  if (keyCode == ENTER) {
+
+    if (rubiksCube.isSolved()) {
+      rubiksCube.scramble(); 
+    }
+    else {
+      rubiksCube.solve(); 
     }
   }
 }
