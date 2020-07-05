@@ -4,7 +4,7 @@ import peasy.*;
 PeasyCam camera;
 
 // creating the initial 3x3 rubik's cube
-Cube rubiksCube = new ThreeDimCube();
+Cube rubiksCube = new FourDimCube(); //ThreeDimCube();
 
 boolean isCubeMoveable;
 
@@ -210,7 +210,7 @@ void mousePressed() {
       }
       // solve button
       else if (mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-        if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
+        if (!rubiksCube.isSolved() && !rubiksCube.isScrambling && !rubiksCube.isSolving)
           rubiksCube.solve();
       }
     }
