@@ -465,65 +465,7 @@ class ThreeDimCube extends Cube {
           }
         }
         
-        /*
-          PROBLEM: When there are only unsolved pieces in the M slice, the
-          buffer is the swap cell, and it is the 2nd letter in the pair,
-          it will chose the same piece over and over again and the cube
-          will never get solved.
-          SOLUTION: Manually chose the order of the faces to swap with
-          based on whether or not the target cell is solved.
-        */
-        if (isFrontBuffer && swapCellX == 1 && edgeSwapCount % 2 == 0) {
-          // Q Face
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-
-          if (cells[9].isSolved()) {
-            // C Face
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
-            
-            // S Face
-            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-            solveTurnSequence.add(new TurnAnimation('D', -1)); // D
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-            solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
-            
-            edgeSwapCount += 2;
-          }
-          
-          // A Face
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          
-          edgeSwapCount++;
-          
-          return setUpSequence;
-        }
+        
       }
     } while (isFrontBuffer || isBottomBuffer);
     
