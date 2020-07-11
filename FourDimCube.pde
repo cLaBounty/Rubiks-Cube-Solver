@@ -1123,15 +1123,27 @@ class FourDimCube extends Cube {
              
                 swapCellIndex = i;
                 
-                // if new swap cell is in the r slice, continue looking
-                if (swapCellX != 2)
-                  break;
+                /*
+                  Todo:
+                  - Update 3x3 with this also
+                  - Solve issue with A or U repeating.                   
+                */
+                
+                // if r slice is correctly oriented, then swap with any face
+                if (wingSwapCount % 2 == 1) {
+                  break; //<>//
+                }
+                else {
+                  // if r slice is NOT correctly oriented and the cell is not in the r slice, then swap with that face
+                  if (swapCellX != 2)
+                    break; //<>//
+                }
             }
           }
         }
         
         if (swapCellX == 2) {
-          println("BUG"); //<>//
+          println("MAYBE - BUG"); //<>//
         }
         
         /*
@@ -1342,7 +1354,6 @@ class FourDimCube extends Cube {
     solveTurnSequence.addAll(setUpSequence);
     solveTurnSequence.addAll(Arrays.asList(MOD_Y_PERM_ALG)); 
     solveTurnSequence.addAll(reverseSetUpSequence);
-    
   }
   
   private ArrayList<TurnAnimation> getCornerSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
