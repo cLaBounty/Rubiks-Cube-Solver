@@ -55,20 +55,18 @@ class Cell {
     noFill();
     stroke(0);
     strokeWeight(7 * (len / 48)); // calculated based on size of each cell
-        
+    
     pushMatrix();
-        
     applyMatrix(matrix);
-        
+    
     box(len);
     
     // display each inner and colored face of the cell
-    for (Face f : innerFaces) {
+    for (Face f : innerFaces)
       f.show();
-    }
-    for (Face f : coloredFaces) {
+    
+    for (Face f : coloredFaces)
       f.show();
-    }
     
     popMatrix();
   }
@@ -84,20 +82,25 @@ class Cell {
   }
 
   public void turnFaces(char fixedAxis, int dirValue) {
-    for (Face f : innerFaces) {
+    for (Face f : innerFaces)
       f.turn(fixedAxis, dirValue);
-    }
-    for (Face f : coloredFaces) {
+      
+    for (Face f : coloredFaces)
       f.turn(fixedAxis, dirValue);
+  }
+  
+  public boolean isFlipped() {
+    if (coloredFaces.get(0).dir.x == coloredFaces.get(0).initialDir.x &&
+        coloredFaces.get(0).dir.y == coloredFaces.get(0).initialDir.y) {
+        return false;
     }
+    
+    return true;
   }
   
   public boolean isSolved() {
-    if (currentX == solvedX && currentY == solvedY && currentZ == solvedZ &&
-        coloredFaces.get(0).dir.x == coloredFaces.get(0).initialDir.x &&
-        coloredFaces.get(0).dir.y == coloredFaces.get(0).initialDir.y) {
-          return true;
-    }
+    if (!isFlipped() && currentX == solvedX && currentY == solvedY && currentZ == solvedZ)
+      return true;
     
     return false;
   }

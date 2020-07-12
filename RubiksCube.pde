@@ -4,7 +4,7 @@ import peasy.*;
 PeasyCam camera;
 
 // creating the initial 3x3 rubik's cube
-Cube rubiksCube = new FourDimCube(); //ThreeDimCube();
+Cube rubiksCube = new ThreeDimCube();
 
 boolean isCubeMoveable;
 
