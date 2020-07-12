@@ -232,36 +232,36 @@ class ThreeDimCube extends Cube {
     boolean isFrontBuffer;
     boolean isBottomBuffer;
     
+    /*
+      When swap is the 2nd letter of a pair and it is a special face
+      in the M slice (C, W, I, S), then swap with the opposite face instead
+    */
+    if (edgeSwapCount % 2 == 0) {
+      if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
+        swapCellDir.y = 1;
+        swapCellY = 2;
+        swapCellZ = 0;
+      }
+      else if (swapCellDir.y == 1 && swapCellZ == 0) { // W face to C Face
+        swapCellDir.y = -1;
+        swapCellY = 0;
+        swapCellZ = 2;
+      }
+      else if (swapCellDir.z == 1 && swapCellY == 0) { // I Face to S Face
+        swapCellDir.z = -1;
+        swapCellY = 2;
+        swapCellZ = 0;
+      }
+      else if (swapCellDir.z == -1 && swapCellY == 2) { // S Face to I Face
+        swapCellDir.z = 1;
+        swapCellY = 0;
+        swapCellZ = 2;
+      }
+    }
+    
     do {
       isFrontBuffer = false;
       isBottomBuffer = false;
-      
-      /*
-        When swap is the 2nd letter of a pair and it is a special face
-        in the M slice (C, W, I, S), then swap with the opposite face instead
-      */
-      if (edgeSwapCount % 2 == 0) {
-        if (swapCellDir.y == -1 && swapCellZ == 2) { // C face to W Face
-          swapCellDir.y = 1;
-          swapCellY = 2;
-          swapCellZ = 0;
-        }
-        else if (swapCellDir.y == 1 && swapCellZ == 0) { // W face to C Face
-          swapCellDir.y = -1;
-          swapCellY = 0;
-          swapCellZ = 2;
-        }
-        else if (swapCellDir.z == 1 && swapCellY == 0) { // I Face to S Face
-          swapCellDir.z = -1;
-          swapCellY = 2;
-          swapCellZ = 0;
-        }
-        else if (swapCellDir.z == -1 && swapCellY == 2) { // S Face to I Face
-          swapCellDir.z = 1;
-          swapCellY = 0;
-          swapCellZ = 2;
-        }
-      }
       
       if (swapCellDir.y == -1) {
         if (swapCellZ == 0) { // A face
@@ -458,14 +458,72 @@ class ThreeDimCube extends Cube {
               swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
               swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
               
-              // if new swap cell is in the M slice, continue looking
-              if (swapCellX != 1)
+              // if the M slice is correctly oriented or the swap cell is not in M slice, then swap with it
+              if (edgeSwapCount % 2 == 1 || swapCellX != 1)
                 break;
             }
           }
         }
         
-        
+        /*
+          PROBLEM: When there are only unsolved pieces in the M slice, the
+          buffer is the swap cell, and it is the 2nd letter in the pair,
+          it will chose the same piece over and over again and the cube
+          will never get solved.
+          SOLUTION: Manually chose the order of the faces to swap with
+          based on whether or not the target cell is solved.
+        */
+        if (isFrontBuffer && swapCellX == 1 && edgeSwapCount % 2 == 0) {
+          // Q Face
+          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
+          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
+          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
+          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+
+          if (cells[9].isSolved()) {
+            // C Face
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
+            
+            // S Face
+            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+            solveTurnSequence.add(new TurnAnimation('D', -1)); // D
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
+            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
+            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
+            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+            solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
+            
+            edgeSwapCount += 2;
+          }
+          
+          // A Face
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
+          
+          edgeSwapCount++;
+          
+          return setUpSequence;
+        }
       }
     } while (isFrontBuffer || isBottomBuffer);
     
@@ -726,15 +784,15 @@ class ThreeDimCube extends Cube {
           if (cells[i].coloredFaces.size() == 3) {
             // if the cell is in the incorrect position or flipped
             if (!cells[i].isSolved()) {
-                swapCellX = cells[i].currentX;
-                swapCellY = cells[i].currentY;
-                swapCellZ = cells[i].currentZ;
-                
-                swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
-                swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
-                swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
-                
-                break;
+              swapCellX = cells[i].currentX;
+              swapCellY = cells[i].currentY;
+              swapCellZ = cells[i].currentZ;
+              
+              swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
+              swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
+              swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
+              
+              break;
             }
           }
         }

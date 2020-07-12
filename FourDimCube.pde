@@ -95,23 +95,14 @@ class FourDimCube extends Cube {
         solveCorner();
       else {
         // Parity Algorithm (only if an odd # of corners were moved)
-        if (cornerSwapCount % 2 == 1) {          
-          println("NORMAL");
-          addCornerParityAlgorithm(); // rename
-        }
-        else {
-          if (!cells[31].isSolved()) {
-            println("OLL");
-            //addOLLParityAlgorithm(); // rename
-          }
-        }
+        if (cornerSwapCount % 2 == 1)
+          addCornerParityAlgorithm();
         
         // next phase
         solvePhase++;
       }
     }
     else if (solvePhase == 4) { // finished
-      println("-----------------");
       isSolving = false;
     }
   }
@@ -140,10 +131,10 @@ class FourDimCube extends Cube {
     for (Cell c : cells) {
       // only check the wing pieces
       if (c.coloredFaces.size() == 2) {
-        // if the cell is in the incorrect position
+        // if the cell is in the incorrect position or flipped
         if ((c.currentX != c.solvedX && (c.solvedX == 0 || c.solvedX == 3)) ||
-            (c.currentY != c.solvedY && (c.solvedY == 0 || c.solvedY == 3)) ||
-            (c.currentZ != c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3))) {
+           (c.currentY != c.solvedY && (c.solvedY == 0 || c.solvedY == 3)) ||
+           (c.currentZ != c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3)) || c.isFlipped()) {
             
             // Parity
             if (wingSwapCount % 2 == 1) {
@@ -184,7 +175,7 @@ class FourDimCube extends Cube {
         // if the cell is in the incorrect position or flipped
         if ((c.currentX != c.solvedX && (c.solvedX == 0 || c.solvedX == 3)) ||
             (c.currentY != c.solvedY && (c.solvedY == 0 || c.solvedY == 3)) ||
-            (c.currentZ != c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3))) {
+            (c.currentZ != c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3)) || c.isFlipped()) {
               // allow for 2 cells to be off on the top left/back
               if (c.currentY == 0 && (c.currentX == 0 || c.currentZ == 0))
                 parityCounter++;
@@ -706,27 +697,27 @@ class FourDimCube extends Cube {
     // index of the new unsolved cell when the swap cell is also the buffer
     int swapCellIndex = 0;
     
+    /*
+      When swap is the 2nd letter of a pair and it is a special face
+      in the r slice (I, S), then swap with the opposite face instead
+    */
+    if (wingSwapCount % 2 == 0) {
+      if (swapCellDir.z == 1 && swapCellY == 0) { // I face to S Face
+        swapCellDir.z = -1;
+        swapCellY = 3;
+        swapCellZ = 0;
+      }
+      else if (swapCellDir.z == -1 && swapCellY == 3) { // S face to I Face
+        swapCellDir.z = 1;
+        swapCellY = 0;
+        swapCellZ = 3;
+      }
+    }
+    
     do {
       isBuffer = false;
       wrongSide = false;
       
-      /*
-        When swap is the 2nd letter of a pair and it is a special face
-        in the r slice (I, S), then swap with the opposite face instead
-      */
-      if (wingSwapCount % 2 == 0) {
-        if (swapCellDir.z == 1 && swapCellY == 0) { // I face to S Face
-          swapCellDir.z = -1;
-          swapCellY = 3;
-          swapCellZ = 0;
-        }
-        else if (swapCellDir.z == -1 && swapCellY == 3) { // S face to I Face
-          swapCellDir.z = 1;
-          swapCellY = 0;
-          swapCellZ = 3;
-        }
-      }
-
       if (swapCellDir.y == -1) {
         if (swapCellZ == 0) { // A face
           // special case - add directly to solve sequence
@@ -1106,12 +1097,12 @@ class FourDimCube extends Cube {
       if (isBuffer) {
         // first wing is at index 1 and last is at cells.length - 1
         for (int i = 1; i < cells.length - 1; i++) {
-          // only check the edge pieces and don't allow for the new cell to be the target or the buffer
-          if (cells[i].coloredFaces.size() == 2 && i != 31 && i != 47) {
-            // if the cell is in the incorrect position
+          // only check the wing pieces
+          if (cells[i].coloredFaces.size() == 2) {
+            // if the cell is in the incorrect position or flipped
             if ((cells[i].currentX != cells[i].solvedX && (cells[i].solvedX == 0 || cells[i].solvedX == 3)) ||
                 (cells[i].currentY != cells[i].solvedY && (cells[i].solvedY == 0 || cells[i].solvedY == 3)) ||
-                (cells[i].currentZ != cells[i].solvedZ && (cells[i].solvedZ == 0 || cells[i].solvedZ == 3))) {
+                (cells[i].currentZ != cells[i].solvedZ && (cells[i].solvedZ == 0 || cells[i].solvedZ == 3)) || cells[i].isFlipped()) {
               
                 swapCellX = cells[i].currentX;
                 swapCellY = cells[i].currentY;
@@ -1123,92 +1114,16 @@ class FourDimCube extends Cube {
              
                 swapCellIndex = i;
                 
-                /*
-                  Todo:
-                  - Update 3x3 with this also
-                  - Solve issue with A or U repeating.                   
-                */
-                
-                // if r slice is correctly oriented, then swap with any face
-                if (wingSwapCount % 2 == 1) {
-                  break; //<>//
-                }
-                else {
-                  // if r slice is NOT correctly oriented and the cell is not in the r slice, then swap with that face
-                  if (swapCellX != 2)
-                    break; //<>//
+                // if the swap cell is not in either of the identical buffer locations
+                if (swapCellY != 3 || swapCellZ != 3) {
+                  // if the r slice is correctly oriented or the swap cell is not in r slice, then swap with it
+                  if (wingSwapCount % 2 == 1 || swapCellX != 2)
+                    break;
                 }
             }
           }
         }
         
-        if (swapCellX == 2) {
-          println("MAYBE - BUG"); //<>//
-        }
-        
-        /*
-          PROBLEM: When there are only unsolved pieces in the M slice, the
-          buffer is the swap cell, and it is the 2nd letter in the pair,
-          it will chose the same piece over and over again and the cube
-          will never get solved.
-          SOLUTION: Manually chose the order of the faces to swap with
-          based on whether or not the target cell is solved.
-          
-        if (isFrontBuffer && swapCellX == 1 && edgeSwapCount % 2 == 0) {
-          // Q Face
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          solveTurnSequence.add(new TurnAnimation('B', 1)); // B'
-          solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-          solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
-          solveTurnSequence.add(new TurnAnimation('B', -1)); // B
-          solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-
-          if (cells[9].isSolved()) {
-            // C Face
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
-            
-            // S Face
-            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-            solveTurnSequence.add(new TurnAnimation('D', -1)); // D
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-            solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
-            solveTurnSequence.add(new TurnAnimation('U', 1)); // U
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('R', 1)); // R
-            solveTurnSequence.add(new TurnAnimation('U', -1)); // U'
-            solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-            solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
-            
-            edgeSwapCount += 2;
-          }
-          
-          // A Face
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-          
-          edgeSwapCount++;
-          
-          return setUpSequence;
-        }
-        
-        */
-        
-
       }
       // if the wrong side is chosen when the swap cell is also the buffer
       else if (wrongSide) {
