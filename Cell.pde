@@ -58,7 +58,6 @@ class Cell {
     
     pushMatrix();
     applyMatrix(matrix);
-    
     box(len);
     
     // display each inner and colored face of the cell

@@ -1,25 +1,6 @@
 class FourDimCube extends Cube {
   
   /*
-  setUpSequence.add(new TurnAnimation('L', -1)); // L
-  setUpSequence.add(new TurnAnimation('l', -1)); // l
-  setUpSequence.add(new TurnAnimation('R', 1)); // R
-  setUpSequence.add(new TurnAnimation('r', 1)); // r
-  
-  setUpSequence.add(new TurnAnimation('U', 1)); // U
-  setUpSequence.add(new TurnAnimation('u', 1)); // u
-  setUpSequence.add(new TurnAnimation('D', -1)); // D
-  setUpSequence.add(new TurnAnimation('d', -1)); // d
-  
-  setUpSequence.add(new TurnAnimation('B', -1)); // B
-  setUpSequence.add(new TurnAnimation('b', -1)); // b
-  setUpSequence.add(new TurnAnimation('F', 1)); // F
-  setUpSequence.add(new TurnAnimation('f', 1)); // f
-                    
-  solveTurnSequence
-  */
-  
-  /*
   Phase 1: Solved all center pieces 
   Phase 2: Solve all wing pieces
   Phase 3: Solve all corner pieces
@@ -105,6 +86,24 @@ class FourDimCube extends Cube {
     else if (solvePhase == 4) { // finished
       isSolving = false;
     }
+  }
+  
+  /*
+    On a 2x2 and 3x3 cube, there is only one correct location where a cell can be solved.
+    On a 4x4 cube, there is more than one location where a cell can be solved because the faces on some cells are identical.
+    This only check to see if all faces are corrently positioned because the inital solved locations are irrelevant.
+  */
+  @Override
+  protected boolean isSolved() {
+    // if any faces are not facing the corrent direction, then the cube is not solved
+    for (Cell c : cells) {
+      if (c.coloredFaces.size() > 0) { // disregard the cell in the middle of the cube
+        if (c.isFlipped())
+          return false;
+      }
+    }
+    
+    return true;
   }
 
   private boolean areCentersSolved() {
