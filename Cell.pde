@@ -88,9 +88,16 @@ class Cell {
       f.turn(fixedAxis, dirValue);
   }
   
-  public boolean isFlipped() {
-    if (coloredFaces.get(0).dir.x == coloredFaces.get(0).initialDir.x &&
-        coloredFaces.get(0).dir.y == coloredFaces.get(0).initialDir.y) {
+  public boolean isWrongDir() {
+    if (coloredFaces.get(0).dir.x == coloredFaces.get(0).initialDir.x && coloredFaces.get(0).dir.y == coloredFaces.get(0).initialDir.y)
+      return false;
+    
+    return true;
+  }
+  
+  public boolean isOppositeDir() {
+    for (Face f : coloredFaces) {
+      if (f.dir.x != -1 * f.initialDir.x || f.dir.y != -1 * f.initialDir.y || f.dir.z != -1 * f.initialDir.z)
         return false;
     }
     
@@ -98,7 +105,7 @@ class Cell {
   }
   
   public boolean isSolved() {
-    if (!isFlipped() && currentX == solvedX && currentY == solvedY && currentZ == solvedZ)
+    if (!isWrongDir() && currentX == solvedX && currentY == solvedY && currentZ == solvedZ)
       return true;
     
     return false;
