@@ -300,9 +300,11 @@ void mousePressed() {
 }
 
 void keyPressed() {
-  // add letters for each turn
   if (keyCode == ENTER) {
-    println("STOP HERE"); //<>//
+    if (rubiksCube.isSolved())
+      rubiksCube.scramble(); 
+    else
+      rubiksCube.solve(); 
   }
 }
 
