@@ -35,6 +35,8 @@ abstract class Cube {
   
   // getters and setters
   public int getDimensions() { return dim; }
+  
+  public float getTurnSpeed() { return turnSpeed; }
   public void setTurnSpeed(float turnSpeed) { this.turnSpeed = turnSpeed; }
 
   // member functions
@@ -71,10 +73,10 @@ abstract class Cube {
       }
       
       c.show();
-      pop();  
+      pop();
     } 
   }
-   
+  
   public void update() {
     // if cube is being solved or scrambled
     if (isSolving || isScrambling) {
@@ -111,9 +113,8 @@ abstract class Cube {
     // if any cell is not in it's solved location, then the cube is not solved
     for (Cell c : cells) {
       if (c.coloredFaces.size() > 0) { // disregard the cell in the middle of the cube
-        if (!c.isSolved()) {
+        if (!c.isSolved())
           return false;
-        }
       }
     }
     

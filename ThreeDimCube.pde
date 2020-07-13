@@ -63,7 +63,7 @@ class ThreeDimCube extends Cube {
         solvePhase++;
       }
     }
-    else if (solvePhase == 4) {    
+    else if (solvePhase == 4) {
       if (!isSolved())
         solveCorner();
       else

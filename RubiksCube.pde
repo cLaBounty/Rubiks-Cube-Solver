@@ -1,4 +1,21 @@
-import java.util.*; //<>//
+/*
+  new TurnAnimation('L', -1); // L
+  new TurnAnimation('l', -1); // l
+  new TurnAnimation('R', 1); // R
+  new TurnAnimation('r', 1); // r
+  
+  new TurnAnimation('U', 1); // U
+  new TurnAnimation('u', 1); // u
+  new TurnAnimation('D', -1); // D
+  new TurnAnimation('d', -1); // d
+  
+  new TurnAnimation('B', -1); // B
+  new TurnAnimation('b', -1); // b
+  new TurnAnimation('F', 1); // F
+  new TurnAnimation('f', 1); // f
+*/
+
+import java.util.*;
 import peasy.*;
 
 PeasyCam camera;
@@ -81,7 +98,7 @@ void draw() {
       cursor(HAND);
     }
   }
-    
+  
   // HUD
   camera.beginHUD();
 
@@ -190,6 +207,8 @@ void mousePressed() {
         camera.setResetOnDoubleClick(false); // disable reset on double click
            
         if (!rubiksCube.isSolved()) {
+          float prevTurnSpeed = rubiksCube.getTurnSpeed();
+          
           switch(rubiksCube.getDimensions()) {
             case 2: {
               rubiksCube = new TwoDimCube();
@@ -206,6 +225,7 @@ void mousePressed() {
           }
           
           rubiksCube.build();
+          rubiksCube.setTurnSpeed(prevTurnSpeed);
         }
       }
       // solve button
@@ -218,22 +238,28 @@ void mousePressed() {
       // 2x2 button
       if (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) && mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2))) {
         if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 2) {
+          float prevTurnSpeed = rubiksCube.getTurnSpeed();
           rubiksCube = new TwoDimCube();
           rubiksCube.build();
+          rubiksCube.setTurnSpeed(prevTurnSpeed);
         }
       }
       // 3x3 button
       else if (mouseX < (MIDDLE_BTN + (BOT_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (BOT_BTN_WIDTH / 2))) {
         if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 3) {
+          float prevTurnSpeed = rubiksCube.getTurnSpeed();
           rubiksCube = new ThreeDimCube();
           rubiksCube.build();
+          rubiksCube.setTurnSpeed(prevTurnSpeed);
         }
       }
       // 4x4 button
       else if (mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) && mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2))) {
         if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 4) {
+          float prevTurnSpeed = rubiksCube.getTurnSpeed();
           rubiksCube = new FourDimCube();
           rubiksCube.build();
+          rubiksCube.setTurnSpeed(prevTurnSpeed);
         }
       }
     }
@@ -267,18 +293,20 @@ void mousePressed() {
     }
     else if (isCubeMoveable) {
       // edit cube by clicking
+      //println("MOVEABLE");
+      int editIndex = getCellIndex();
     }
   }
 }
 
 void keyPressed() {
+  // add letters for each turn
   if (keyCode == ENTER) {
-
-    if (rubiksCube.isSolved()) {
-      rubiksCube.scramble(); 
-    }
-    else {
-      rubiksCube.solve(); 
-    }
+    println("STOP HERE"); //<>//
   }
+}
+
+int getCellIndex() {
+  
+  return -1;
 }
