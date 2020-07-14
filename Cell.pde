@@ -41,12 +41,10 @@ class Cell {
     };
     
     for (int i = 0; i < 6; i++) {
-      if (FACE_CASES[i]) {
+      if (FACE_CASES[i])
         coloredFaces.add(new Face(DIRECTIONS[i], SIDE_COLORS[i], len));
-      }
-      else {
+      else
         innerFaces.add(new Face(DIRECTIONS[i], color(0), len));
-      }
     }
   }
   
@@ -88,14 +86,14 @@ class Cell {
       f.turn(fixedAxis, dirValue);
   }
   
-  public boolean isWrongDir() {
+  public boolean isWrongDirection() {
     if (coloredFaces.get(0).dir.x == coloredFaces.get(0).initialDir.x && coloredFaces.get(0).dir.y == coloredFaces.get(0).initialDir.y)
       return false;
     
     return true;
   }
   
-  public boolean isOppositeDir() {
+  public boolean isOppositeDirection() {
     for (Face f : coloredFaces) {
       if (f.dir.x != -1 * f.initialDir.x || f.dir.y != -1 * f.initialDir.y || f.dir.z != -1 * f.initialDir.z)
         return false;
@@ -105,7 +103,7 @@ class Cell {
   }
   
   public boolean isSolved() {
-    if (!isWrongDir() && currentX == solvedX && currentY == solvedY && currentZ == solvedZ)
+    if (!isWrongDirection() && currentX == solvedX && currentY == solvedY && currentZ == solvedZ)
       return true;
     
     return false;
