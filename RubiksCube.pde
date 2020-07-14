@@ -294,7 +294,7 @@ void mousePressed() {
     else if (isCubeMoveable) {
       // edit cube by clicking
       //println("MOVEABLE");
-      int editIndex = getCellIndex();
+      //int editIndex = getCellIndex();
     }
   }
 }
@@ -308,7 +308,6 @@ void keyPressed() {
   }
 }
 
-int getCellIndex() {
-  
-  return -1;
-}
+//int getCellIndex() {
+  //return -1;
+//}

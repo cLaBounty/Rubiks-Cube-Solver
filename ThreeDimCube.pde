@@ -109,7 +109,7 @@ class ThreeDimCube extends Cube {
     // if NOT parity, then all should be solved
     if (edgeSwapCount % 2 == 0) {
       // loop through all edge pieces to see if any are in the incorrect position or flipped
-      for (int i = 1; i < cells.length-1; i++) {
+      for (int i = 1; i < cells.length-1; i++) { // first edge is at index 1 and the last is the 2nd to last in the array
         // only check the edge pieces
         if (cells[i].coloredFaces.size() == 2) {
           if (!cells[i].isSolved())
@@ -119,7 +119,7 @@ class ThreeDimCube extends Cube {
     }
     else { // if parity, then the cells at index 11 and 15 should be opposite, rather than solved
       // loop through all edge pieces
-      for (int i = 1; i < cells.length-1; i++) {
+      for (int i = 1; i < cells.length-1; i++) { // first edge is at index 1 and the last is the 2nd to last in the array
         // only check the edge pieces
         if (cells[i].coloredFaces.size() == 2) {
           if (i != 11 && i != 15) {
@@ -127,7 +127,7 @@ class ThreeDimCube extends Cube {
               return false;
           }
           else {
-            if (cells[i].isSolved() || !cells[i].isOppositeDir())
+            if (cells[i].isSolved() || !cells[i].isOppositeDirection())
               return false;
           }
         }
@@ -147,7 +147,7 @@ class ThreeDimCube extends Cube {
     // getting the buffer cell's index in the array of all cells
     int bufferIndex = -1;
 
-    for (int i = 1; i < (cells.length - 1); i++) { // first edge is at index 1 and last is at cells.length - 1
+    for (int i = 1; i < cells.length-1; i++) { // first edge is at index 1 and the last is the 2nd to last in the array
       if (cells[i].currentX == 1 && cells[i].currentY == 2 && cells[i].currentZ == 2) {
         bufferIndex = i;
         break;
@@ -435,40 +435,38 @@ class ThreeDimCube extends Cube {
       // if the swap cell is the buffer, then pick any unsolved or flipped piece
       if (isBuffer) {
         boolean foundNewSwapCell = false;
-        int swapCellIndex = -1;
         
-        // first edge is at index 1 and last is at cells.length - 1
-        for (int i = 1; i < cells.length - 1; i++) {
+        int index = 0;
+        for (Cell c : cells) {
           // only check the edge pieces and don't allow for the new cell to be the buffer or the target
-          if (cells[i].coloredFaces.size() == 2 && i != 9 && i != 17) {
+          if (c.coloredFaces.size() == 2 && index != 9 && index != 17) {
             // if the swap cell is not in M slice or the M slice is correctly oriented, then swap with any cell
-            if (edgeSwapCount % 2 == 1 || cells[i].currentX != 1) {
-              if (!cells[i].isSolved()) {
+            if (edgeSwapCount % 2 == 1 || c.currentX != 1) {
+              if (!c.isSolved()) {
                 foundNewSwapCell = true;
-                swapCellIndex = i;
                 break;
               }
             }           
             else { // if the swap cell is in the M slice and the M slice is off, then it won't be in it's solved location
-              // chose a cell that is not it the corresponding solved location with a flipped M slice
-              if (abs(cells[i].solvedY - cells[i].currentY) != 2 || abs(cells[i].solvedZ - cells[i].currentZ) != 2 || !cells[i].isOppositeDir()) {
+              // choose a cell that is not in the corresponding solved location with a flipped M slice
+              if (abs(c.solvedY - c.currentY) != 2 || abs(c.solvedZ - c.currentZ) != 2 || !c.isOppositeDirection()) {
                 foundNewSwapCell = true;
-                swapCellIndex = i;
                 break;
               }
             }
           }
+          index++;
         }
         
         // if a new swap cell was found, then swap with it
         if (foundNewSwapCell) {
-          swapCellX = cells[swapCellIndex].currentX;
-          swapCellY = cells[swapCellIndex].currentY;
-          swapCellZ = cells[swapCellIndex].currentZ;
+          swapCellX = cells[index].currentX;
+          swapCellY = cells[index].currentY;
+          swapCellZ = cells[index].currentZ;
           
-          swapCellDir.x = cells[swapCellIndex].coloredFaces.get(0).dir.x;
-          swapCellDir.y = cells[swapCellIndex].coloredFaces.get(0).dir.y;
-          swapCellDir.z = cells[swapCellIndex].coloredFaces.get(0).dir.z;
+          swapCellDir.x = cells[index].coloredFaces.get(0).dir.x;
+          swapCellDir.y = cells[index].coloredFaces.get(0).dir.y;
+          swapCellDir.z = cells[index].coloredFaces.get(0).dir.z;
         }
         else { // when only the target and buffer are left to be solved
           // swap to A so that it will swap to Q after and both will be solved
@@ -730,8 +728,7 @@ class ThreeDimCube extends Cube {
       
       // if the swap cell is the buffer, then pick any unsolved or flipped piece
       if (isBuffer) {
-        // don't allow for the new cell to be the buffer at index 0
-        for (int i = 1; i < cells.length; i++) {
+        for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
           // only check the corner pieces
           if (cells[i].coloredFaces.size() == 3) {
             // if the cell is in the incorrect position or flipped
