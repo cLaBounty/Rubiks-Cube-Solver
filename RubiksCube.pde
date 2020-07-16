@@ -291,23 +291,12 @@ void mousePressed() {
         rubiksCube.setTurnSpeed(10);
       }
     }
-    else if (isCubeMoveable) {
-      // edit cube by clicking
-      //println("MOVEABLE");
-      //int editIndex = getCellIndex();
+    else if (isCubeMoveable) { // edit the cube by clicking
+      if (!rubiksCube.isScrambling && !rubiksCube.isSolving) {
+        int clickedCellIndex = rubiksCube.getClickedCell();
+        if (clickedCellIndex != -1)
+          rubiksCube.move(mouseX, mouseY, clickedCellIndex);
+      }
     }
   }
 }
-
-void keyPressed() {
-  if (keyCode == ENTER) {
-    if (rubiksCube.isSolved())
-      rubiksCube.scramble(); 
-    else
-      rubiksCube.solve(); 
-  }
-}
-
-//int getCellIndex() {
-  //return -1;
-//}
