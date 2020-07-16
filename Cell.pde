@@ -77,7 +77,7 @@ class Cell {
     currentY = round(y + 1 - offset);
     currentZ = round(z + 1 - offset);
   }
-
+  
   public void turnFaces(char fixedAxis, int dirValue) {
     for (Face f : innerFaces)
       f.turn(fixedAxis, dirValue);

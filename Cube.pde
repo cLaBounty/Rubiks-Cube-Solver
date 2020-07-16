@@ -15,6 +15,7 @@ abstract class Cube {
   protected int scrambleTurnNum;
   protected ArrayList<TurnAnimation> solveTurnSequence;
   
+  public boolean isBeingMoved;
   public boolean isTurning;
   public boolean isScrambling;
   public boolean isSolving;
@@ -28,6 +29,7 @@ abstract class Cube {
     turnSpeed = 1;
     turnCount = 0;
     solveTurnSequence = new ArrayList<TurnAnimation>();
+    isBeingMoved = false;
     isTurning = false;
     isScrambling = false;
     isSolving = false;
@@ -208,5 +210,34 @@ abstract class Cube {
         return; // no need to search further
       }
     }
+  }
+  
+  private int getClickedCell() {
+    float prevZPos = 1;
+    int retVal = -1;
+    
+    int index = 0;
+    for (Cell c : cells) {
+      for (Face f : c.coloredFaces) {
+        if (f.checkIfClicked() && f.centerScrnPos.z < prevZPos) {
+          retVal = index;
+          prevZPos = f.centerScrnPos.z;
+        }
+      }
+      
+      index++;
+    }
+    
+    return retVal;
+  }
+  
+  public void move(int startMouseX, int startMouseY, int clickedCellIndex) {
+    isBeingMoved = true;
+
+    println(clickedCellIndex);
+    println(cells[clickedCellIndex].currentX + ", " + cells[clickedCellIndex].currentY + ", " + cells[clickedCellIndex].currentZ);
+    
+    //cells[clickedCellIndex]; // do something
+    // every cell has possible X rotation and possible Y rotaion. cannot have Z because its a 2d screen
   }
 }
