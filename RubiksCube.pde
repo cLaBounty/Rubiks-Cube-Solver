@@ -1,16 +1,19 @@
 /*
   new TurnAnimation('L', -1); // L
   new TurnAnimation('l', -1); // l
+  new TurnAnimation('M', -1); // M
   new TurnAnimation('R', 1); // R
   new TurnAnimation('r', 1); // r
   
   new TurnAnimation('U', 1); // U
   new TurnAnimation('u', 1); // u
+  new TurnAnimation('E', -1); // E
   new TurnAnimation('D', -1); // D
   new TurnAnimation('d', -1); // d
   
   new TurnAnimation('B', -1); // B
   new TurnAnimation('b', -1); // b
+  new TurnAnimation('S', 1); // S
   new TurnAnimation('F', 1); // F
   new TurnAnimation('f', 1); // f
 */
@@ -297,6 +300,22 @@ void mousePressed() {
         if (clickedCellIndex != -1)
           rubiksCube.move(mouseX, mouseY, clickedCellIndex);
       }
+    }
+  }
+}
+
+void mouseReleased() {
+  if (isCubeMoveable && !rubiksCube.isScrambling && !rubiksCube.isSolving) {
+    if (rubiksCube.turn.angle > QUARTER_PI) {
+      rubiksCube.turn.angle = HALF_PI;
+    }
+    else if (rubiksCube.turn.angle < -QUARTER_PI) {
+      rubiksCube.turn.angle = -HALF_PI;
+    }
+    else {
+      rubiksCube.turn.angle = 0;
+      rubiksCube.isBeingMoved = false;
+      rubiksCube.isTurning = false;
     }
   }
 }

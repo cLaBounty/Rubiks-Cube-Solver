@@ -18,33 +18,6 @@ class Face {
   }
   
   // member functions
-  public void turn(char fixedAxis, int dirValue) {
-     PVector temp = new PVector(); 
-     
-     switch(fixedAxis) {
-       case 'X': {
-         temp.x = dir.x; // fixed
-         temp.y = -dir.z * dirValue;
-         temp.z = dir.y * dirValue;
-         break;  
-       }
-       case 'Y': {
-         temp.x = -dir.z * dirValue;
-         temp.y = dir.y; // fixed
-         temp.z = dir.x * dirValue;
-         break;  
-       }
-       case 'Z': {
-         temp.x = -dir.y * dirValue;
-         temp.y = dir.x * dirValue;
-         temp.z = dir.z; // fixed
-         break;
-       }
-     }
-     
-     this.dir = temp;
-  }
-  
   public void show() {
     pushMatrix();
     fill(col);
@@ -92,5 +65,32 @@ class Face {
       return true; 
     
     return false;
+  }
+  
+  public void turn(char fixedAxis, int dirValue) {
+     PVector temp = new PVector(); 
+     
+     switch(fixedAxis) {
+       case 'X': {
+         temp.x = dir.x; // fixed
+         temp.y = -dir.z * dirValue;
+         temp.z = dir.y * dirValue;
+         break;  
+       }
+       case 'Y': {
+         temp.x = -dir.z * dirValue;
+         temp.y = dir.y; // fixed
+         temp.z = dir.x * dirValue;
+         break;  
+       }
+       case 'Z': {
+         temp.x = -dir.y * dirValue;
+         temp.y = dir.x * dirValue;
+         temp.z = dir.z; // fixed
+         break;
+       }
+     }
+     
+     this.dir = temp;
   }
 }
