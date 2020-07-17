@@ -80,7 +80,7 @@ abstract class Cube {
   }
   
   public void update() {
-    // if cube is being solved or scrambled
+    // if the turns are automated
     if (isSolving || isScrambling) {
       // if cube is in the middle of a turn
       if (isTurning) {
@@ -108,6 +108,9 @@ abstract class Cube {
           isScrambling = false;
         }
       }
+    }
+    else if (isBeingMoved) { // user is moving the cube
+      turn.update();
     }
   }
   
@@ -234,10 +237,10 @@ abstract class Cube {
   public void move(int startMouseX, int startMouseY, int clickedCellIndex) {
     isBeingMoved = true;
 
-    println(clickedCellIndex);
-    println(cells[clickedCellIndex].currentX + ", " + cells[clickedCellIndex].currentY + ", " + cells[clickedCellIndex].currentZ);
-    
-    //cells[clickedCellIndex]; // do something
-    // every cell has possible X rotation and possible Y rotaion. cannot have Z because its a 2d screen
+    int clickedCellXPos = cells[clickedCellIndex].currentX;
+    int clickedCellYPos = cells[clickedCellIndex].currentY;
+    int clickedCellZPos = cells[clickedCellIndex].currentZ;
+
+    turn = new TurnAnimation(startMouseX, startMouseY, clickedCellXPos, clickedCellYPos, clickedCellZPos);
   }
 }
