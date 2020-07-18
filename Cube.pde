@@ -1,7 +1,7 @@
 abstract class Cube {
   protected final float CUBE_LENGTH = 144;
   protected int dim;
-  protected float cellLength;
+  public float cellLength;
   protected Cell [] cells;
   
   private TurnAnimation turn;
@@ -215,32 +215,35 @@ abstract class Cube {
     }
   }
   
-  private int getClickedCell() {
-    float prevZPos = 1;
-    int retVal = -1;
+  private int[] getClickedCellandFace() {
+    int[] retVal = new int[] {-1, -1};
+    float prevZPos = 100;
     
-    int index = 0;
+    int cellIndex = 0;
     for (Cell c : cells) {
+      int faceIndex = 0;
       for (Face f : c.coloredFaces) {
         if (f.checkIfClicked() && f.centerScrnPos.z < prevZPos) {
-          retVal = index;
+          retVal[0] = cellIndex;
+          retVal[1] = faceIndex;
+          
           prevZPos = f.centerScrnPos.z;
         }
+        faceIndex++;
       }
       
-      index++;
+      cellIndex++;
     }
     
     return retVal;
   }
   
-  public void move(int startMouseX, int startMouseY, int clickedCellIndex) {
+  public void move(int startMouseX, int startMouseY, int clickedCellIndex, int clickedFaceIndex) {
     isBeingMoved = true;
+    
+    PVector clickedCellPos = new PVector(cells[clickedCellIndex].currentX, cells[clickedCellIndex].currentY, cells[clickedCellIndex].currentZ);
+    PVector clickedFaceDir = cells[clickedCellIndex].coloredFaces.get(clickedFaceIndex).dir;
 
-    int clickedCellXPos = cells[clickedCellIndex].currentX;
-    int clickedCellYPos = cells[clickedCellIndex].currentY;
-    int clickedCellZPos = cells[clickedCellIndex].currentZ;
-
-    turn = new TurnAnimation(startMouseX, startMouseY, clickedCellXPos, clickedCellYPos, clickedCellZPos);
+    turn = new TurnAnimation(startMouseX, startMouseY, clickedCellPos, clickedFaceDir);
   }
 }

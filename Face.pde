@@ -61,7 +61,7 @@ class Face {
 
   public boolean checkIfClicked() {
     float distance = dist(mouseX, mouseY, centerScrnPos.x, centerScrnPos.y);
-    if (distance < trueXLength/sqrt(2) && distance < trueYLength/sqrt(2))
+    if (distance < trueXLength/2 && distance < trueYLength/2)
       return true; 
     
     return false;
