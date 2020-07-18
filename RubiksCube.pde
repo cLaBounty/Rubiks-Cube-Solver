@@ -296,9 +296,11 @@ void mousePressed() {
     }
     else if (isCubeMoveable) { // edit the cube by clicking
       if (!rubiksCube.isScrambling && !rubiksCube.isSolving) {
-        int clickedCellIndex = rubiksCube.getClickedCell();
-        if (clickedCellIndex != -1)
-          rubiksCube.move(mouseX, mouseY, clickedCellIndex);
+        // int[] because pass by reference DNE in Java
+        // index 0 is the cell index and index 1 is the face index
+        int[] clickedCellandFace = rubiksCube.getClickedCellandFace();
+        if (clickedCellandFace[0] != -1) // if a cell was not clicked
+          rubiksCube.move(mouseX, mouseY, clickedCellandFace[0], clickedCellandFace[1]);
       }
     }
   }
