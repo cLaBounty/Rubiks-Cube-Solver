@@ -244,6 +244,6 @@ abstract class Cube {
     PVector clickedCellPos = new PVector(cells[clickedCellIndex].currentX, cells[clickedCellIndex].currentY, cells[clickedCellIndex].currentZ);
     PVector clickedFaceDir = cells[clickedCellIndex].coloredFaces.get(clickedFaceIndex).dir;
 
-    turn = new TurnAnimation(startMouseX, startMouseY, clickedCellPos, clickedFaceDir);
+    turn = new ControlledTurn(startMouseX, startMouseY, clickedCellPos, clickedFaceDir);
   }
 }
