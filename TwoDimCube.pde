@@ -1,6 +1,5 @@
 class TwoDimCube extends Cube {
-  
-  // constructor
+  // custom constructor
   TwoDimCube() {
     super();
     
@@ -15,6 +14,7 @@ class TwoDimCube extends Cube {
     turnZBases = new char[]{'B', 'F'};
   }
   
+  // member functions
   public void solve() {
     isSolving = true;
         
@@ -48,7 +48,7 @@ class TwoDimCube extends Cube {
       int bufferIndex = -1;
 
       for (int i = 0; i < cells.length; i++) {
-        if (cells[i].currentX == 0 && cells[i].currentY == 0 && cells[i].currentZ == 0) {
+        if (cells[i].getCurrentX() == 0 && cells[i].getCurrentY() == 0 && cells[i].getCurrentZ() == 0) {
           bufferIndex = i;
           break;
         }
@@ -59,12 +59,12 @@ class TwoDimCube extends Cube {
       color bufferLeftColor = #FFFFFF;
       color bufferBackColor = #FFFFFF;
     
-      for (Face f : cells[bufferIndex].coloredFaces) {
-        if (f.dir.y == -1) // up face
+      for (Face f : cells[bufferIndex].getColoredFaces()) {
+        if (f.getCurrentDir().y == -1) // up face
           bufferUpColor = f.col;
-        else if (f.dir.x == -1) // left face
+        else if (f.getCurrentDir().x == -1) // left face
           bufferLeftColor = f.col;
-        else if (f.dir.z == -1) // back face
+        else if (f.getCurrentDir().z == -1) // back face
           bufferBackColor = f.col;
       }
     
@@ -260,13 +260,13 @@ class TwoDimCube extends Cube {
       if (isBuffer) {
         for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
           if (!cells[i].isSolved()) {
-              swapCellX = cells[i].currentX;
-              swapCellY = cells[i].currentY;
-              swapCellZ = cells[i].currentZ;
+              swapCellX = cells[i].getCurrentX();
+              swapCellY = cells[i].getCurrentY();
+              swapCellZ = cells[i].getCurrentZ();
                 
-              swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
-              swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
-              swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
+              swapCellDir.x = cells[i].getColoredFace(0).getCurrentDir().x;
+              swapCellDir.y = cells[i].getColoredFace(0).getCurrentDir().y;
+              swapCellDir.z = cells[i].getColoredFace(0).getCurrentDir().z;
               
               break;
           }

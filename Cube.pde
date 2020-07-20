@@ -1,46 +1,52 @@
 abstract class Cube {
-  protected final float CUBE_LENGTH = 144;
+  public final float CUBE_LENGTH = 144;
   protected int dim;
-  public float cellLength;
-  protected Cell [] cells;
+  protected float cellLength;
+  protected Cell[] cells;
   
-  private TurnAnimation turn;
+  private TurnAnimation currentTurn;
   protected float turnOffset;
-  public char[] turnXBases;
-  public char[] turnYBases;
-  public char[] turnZBases;
-  public int turnCount;
+  protected char[] turnXBases;
+  protected char[] turnYBases;
+  protected char[] turnZBases;
+  protected int turnCount;
   private float turnSpeed;
   
   protected int scrambleTurnNum;
   protected ArrayList<TurnAnimation> solveTurnSequence;
   
+  // current state of the cube
   public boolean isBeingMoved;
   public boolean isTurning;
   public boolean isScrambling;
   public boolean isSolving;
   
+  // abstract methods for different dimension cubes
   abstract public void solve();
   abstract protected void setNextTurns();
   
-  // constructor
-  Cube() {
-    turn = new TurnAnimation();
-    turnSpeed = 1;
-    turnCount = 0;
-    solveTurnSequence = new ArrayList<TurnAnimation>();
-    isBeingMoved = false;
-    isTurning = false;
-    isScrambling = false;
-    isSolving = false;
-  }
-  
   // getters and setters
   public int getDimensions() { return dim; }
-  
+  public float getCellLength() { return cellLength; }
+  public TurnAnimation getCurrentTurn() { return currentTurn; }
+  public char getTurnXBase(int index) { return turnXBases[index]; }
+  public char getTurnYBase(int index) { return turnYBases[index]; }
+  public char getTurnZBase(int index) { return turnZBases[index]; }
   public float getTurnSpeed() { return turnSpeed; }
   public void setTurnSpeed(float turnSpeed) { this.turnSpeed = turnSpeed; }
-
+  
+  // default constructor
+  Cube() {
+    this.currentTurn = new TurnAnimation();
+    this.turnSpeed = 1;
+    this.turnCount = 0;
+    this.solveTurnSequence = new ArrayList<TurnAnimation>();
+    this.isBeingMoved = false;
+    this.isTurning = false;
+    this.isScrambling = false;
+    this.isSolving = false;
+  }
+  
   // member functions
   public void build() {
     // calculate offset for displaying cells
@@ -64,14 +70,14 @@ abstract class Cube {
   public void show() {
     for (Cell c : cells) {
       push();
-      if (c.currentX == turn.x) {
-        rotateX(turn.angle);
+      if (c.getCurrentX() == currentTurn.getSameXPos()) {
+        rotateX(currentTurn.getAngle());
       }
-      else if (c.currentY == turn.y) {
-        rotateY(-turn.angle);
+      else if (c.getCurrentY() == currentTurn.getSameYPos()) {
+        rotateY(-currentTurn.getAngle());
       }
-      else if (c.currentZ == turn.z) {
-        rotateZ(turn.angle);
+      else if (c.getCurrentZ() == currentTurn.getSameZPos()) {
+        rotateZ(currentTurn.getAngle());
       }
       
       c.show();
@@ -84,13 +90,13 @@ abstract class Cube {
     if (isSolving || isScrambling) {
       // if cube is in the middle of a turn
       if (isTurning) {
-        turn.update();
+        currentTurn.update();
       }
       else {
         // if cube is scrambling and has not reached the set amount of turns
         if (isScrambling && turnCount < scrambleTurnNum) {
-          turn = getRandomTurn();
-          turn.start();
+          currentTurn = getRandomTurn();
+          currentTurn.start();
           turnCount++;
         }
         else if (isSolving) {
@@ -98,8 +104,8 @@ abstract class Cube {
             setNextTurns();
           }
           else {
-            turn = solveTurnSequence.get(turnCount);
-            turn.start();
+            currentTurn = solveTurnSequence.get(turnCount);
+            currentTurn.start();
             turnCount++;
           }
         }
@@ -110,14 +116,14 @@ abstract class Cube {
       }
     }
     else if (isBeingMoved) { // user is moving the cube
-      turn.update();
+      currentTurn.update();
     }
   }
   
   protected boolean isSolved() {
     // if any cell is not in it's solved location, then the cube is not solved
     for (Cell c : cells) {
-      if (c.coloredFaces.size() > 0) { // disregard the cell in the middle of the cube
+      if (c.getColoredFaces().size() > 0) { // disregard the cell in the middle of the cube
         if (!c.isSolved())
           return false;
       }
@@ -154,60 +160,60 @@ abstract class Cube {
     // check each turn posibility
     for (int i = 0; i < turnXBases.length; i++) {
       // check if X turn and if so, which one
-      if (i == turn.x) {
+      if (i == currentTurn.getSameXPos()) {
         // loop through all cells to find all on the side being changed
         for (Cell c : cells) {
           // turn all cells on specific side
-          if (c.currentX == i) {
-            float x = (c.currentX - 1) + turnOffset;
-            float y = (c.currentY - 1) + turnOffset;
-            float z = (c.currentZ - 1) + turnOffset;
+          if (c.getCurrentX() == i) {
+            float x = (c.getCurrentX() - 1) + turnOffset;
+            float y = (c.getCurrentY() - 1) + turnOffset;
+            float z = (c.getCurrentZ() - 1) + turnOffset;
             
             PMatrix2D matrix = new PMatrix2D();
-            matrix.rotate(turn.dirValue * HALF_PI);
+            matrix.rotate(currentTurn.getDirValue() * HALF_PI);
             matrix.translate(y, z);
             
             c.update(x, matrix.m02, matrix.m12, turnOffset);
-            c.turnFaces('X', turn.dirValue);
+            c.turnFaces('X', currentTurn.getDirValue());
           }
         }
         return; // no need to search further
       }
       // check if Y turn and if so, which one
-      else if (i == turn.y) {
+      else if (i == currentTurn.getSameYPos()) {
         // loop through all cells to find all on the side being changed
         for (Cell c : cells) {
           // turn all cells on specific side
-          if (c.currentY == i) {
-            float x = (c.currentX - 1) + turnOffset;
-            float y = (c.currentY - 1) + turnOffset;
-            float z = (c.currentZ - 1) + turnOffset;
+          if (c.getCurrentY() == i) {
+            float x = (c.getCurrentX() - 1) + turnOffset;
+            float y = (c.getCurrentY() - 1) + turnOffset;
+            float z = (c.getCurrentZ() - 1) + turnOffset;
             
             PMatrix2D matrix = new PMatrix2D();
-            matrix.rotate(turn.dirValue * HALF_PI);
+            matrix.rotate(currentTurn.getDirValue() * HALF_PI);
             matrix.translate(x, z);
             
             c.update(matrix.m02, y, matrix.m12, turnOffset);
-            c.turnFaces('Y', turn.dirValue);
+            c.turnFaces('Y', currentTurn.getDirValue());
           }
         }
         return; // no need to search further
       } // check if Z turn and if so, which one
-      else if (i == turn.z) {
+      else if (i == currentTurn.getSameZPos()) {
         // loop through all cells to find all on the side being changed
         for (Cell c : cells) {
           // turn all cells on specific side
-          if (c.currentZ == i) {
-            float x = (c.currentX - 1) + turnOffset;
-            float y = (c.currentY - 1) + turnOffset;
-            float z = (c.currentZ - 1) + turnOffset;
+          if (c.getCurrentZ() == i) {
+            float x = (c.getCurrentX() - 1) + turnOffset;
+            float y = (c.getCurrentY() - 1) + turnOffset;
+            float z = (c.getCurrentZ() - 1) + turnOffset;
             
             PMatrix2D matrix = new PMatrix2D();
-            matrix.rotate(turn.dirValue * HALF_PI);
+            matrix.rotate(currentTurn.getDirValue() * HALF_PI);
             matrix.translate(x, y);
             
             c.update(matrix.m02, matrix.m12, z, turnOffset);
-            c.turnFaces('Z', turn.dirValue);
+            c.turnFaces('Z', currentTurn.getDirValue());
           }
         }
         return; // no need to search further
@@ -222,12 +228,12 @@ abstract class Cube {
     int cellIndex = 0;
     for (Cell c : cells) {
       int faceIndex = 0;
-      for (Face f : c.coloredFaces) {
-        if (f.checkIfClicked() && f.centerScrnPos.z < prevZPos) {
+      for (Face f : c.getColoredFaces()) {
+        if (f.checkIfClicked() && f.getCenterScrnPos().z < prevZPos) {
           retVal[0] = cellIndex;
           retVal[1] = faceIndex;
           
-          prevZPos = f.centerScrnPos.z;
+          prevZPos = f.getCenterScrnPos().z;
         }
         faceIndex++;
       }
@@ -241,9 +247,9 @@ abstract class Cube {
   public void move(int startMouseX, int startMouseY, int clickedCellIndex, int clickedFaceIndex) {
     isBeingMoved = true;
     
-    PVector clickedCellPos = new PVector(cells[clickedCellIndex].currentX, cells[clickedCellIndex].currentY, cells[clickedCellIndex].currentZ);
-    PVector clickedFaceDir = cells[clickedCellIndex].coloredFaces.get(clickedFaceIndex).dir;
+    PVector clickedCellPos = new PVector(cells[clickedCellIndex].getCurrentX(), cells[clickedCellIndex].getCurrentY(), cells[clickedCellIndex].getCurrentZ());
+    PVector clickedFaceDir = cells[clickedCellIndex].getColoredFace(clickedFaceIndex).getCurrentDir();
 
-    turn = new ControlledTurn(startMouseX, startMouseY, clickedCellPos, clickedFaceDir);
+    currentTurn = new ControlledTurn(startMouseX, startMouseY, clickedCellPos, clickedFaceDir);
   }
 }

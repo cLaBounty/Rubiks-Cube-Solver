@@ -1,16 +1,16 @@
 class ThreeDimCube extends Cube {  
   /*
-  Phase 1: Align white center to top
-  Phase 2: Align green center to front
-  Phase 3: Solve all edge pieces with M2 method
-  Phase 4: Solve all corner pieces with Modified Y Perm Algorithm
+    * Phase 1: Align white center to top
+    * Phase 2: Align green center to front
+    * Phase 3: Solve all edge pieces with M2 method
+    * Phase 4: Solve all corner pieces with Modified Y Perm Algorithm
   */
   private int solvePhase;
   
   // counter to determine if parity is needed after solving edges
   private int edgeSwapCount;
   
-  // constructor
+  // custom constructor
   ThreeDimCube() {
     super();
     
@@ -28,6 +28,7 @@ class ThreeDimCube extends Cube {
     edgeSwapCount = 0;
   }
   
+  // member functions
   public void solve() {
     isSolving = true;
         
@@ -73,30 +74,30 @@ class ThreeDimCube extends Cube {
   
   // align the white center cell to the top
   private void alignWhiteCenter() {
-    if (cells[10].currentY != 0) { // already solved
-      if (cells[10].currentX == 1) {
-        if (cells[10].currentZ == 0)
+    if (cells[10].getCurrentY() != 0) { // already solved
+      if (cells[10].getCurrentX() == 1) {
+        if (cells[10].getCurrentZ() == 0)
           solveTurnSequence.add(new TurnAnimation('M', -1)); // M
-        else if (cells[10].currentZ == 2)
+        else if (cells[10].getCurrentZ() == 2)
           solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
         else {
           solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
           solveTurnSequence.add(new TurnAnimation('M', 1)); // M'
         }
       }
-      else if (cells[10].currentX == 0)
+      else if (cells[10].getCurrentX() == 0)
         solveTurnSequence.add(new TurnAnimation('S', 1)); // S
-      else // currentX == 2
+      else // getCurrentX() == 2
         solveTurnSequence.add(new TurnAnimation('S', -1)); // S'
     }
   }
   
   // align the green center cell to the front
   private void alignGreenCenter() {
-    if (cells[14].currentZ != 2) { // already solved
-      if (cells[14].currentX == 0)
+    if (cells[14].getCurrentZ() != 2) { // already solved
+      if (cells[14].getCurrentX() == 0)
         solveTurnSequence.add(new TurnAnimation('E', -1)); // E
-      else if (cells[14].currentX == 2)
+      else if (cells[14].getCurrentX() == 2)
         solveTurnSequence.add(new TurnAnimation('E', 1)); // E'
       else {
         solveTurnSequence.add(new TurnAnimation('E', 1)); // E'
@@ -111,7 +112,7 @@ class ThreeDimCube extends Cube {
       // loop through all edge pieces to see if any are in the incorrect position or flipped
       for (int i = 1; i < cells.length-1; i++) { // first edge is at index 1 and the last is the 2nd to last in the array
         // only check the edge pieces
-        if (cells[i].coloredFaces.size() == 2) {
+        if (cells[i].getColoredFaces().size() == 2) {
           if (!cells[i].isSolved())
             return false;
         }
@@ -121,7 +122,7 @@ class ThreeDimCube extends Cube {
       // loop through all edge pieces
       for (int i = 1; i < cells.length-1; i++) { // first edge is at index 1 and the last is the 2nd to last in the array
         // only check the edge pieces
-        if (cells[i].coloredFaces.size() == 2) {
+        if (cells[i].getColoredFaces().size() == 2) {
           if (i != 11 && i != 15) {
             if (!cells[i].isSolved())
               return false;
@@ -148,7 +149,7 @@ class ThreeDimCube extends Cube {
     int bufferIndex = -1;
 
     for (int i = 1; i < cells.length-1; i++) { // first edge is at index 1 and the last is the 2nd to last in the array
-      if (cells[i].currentX == 1 && cells[i].currentY == 2 && cells[i].currentZ == 2) {
+      if (cells[i].getCurrentX() == 1 && cells[i].getCurrentY() == 2 && cells[i].getCurrentZ() == 2) {
         bufferIndex = i;
         break;
       }
@@ -158,10 +159,10 @@ class ThreeDimCube extends Cube {
     color bufferDownColor = #FFFFFF;
     color bufferFrontColor = #FFFFFF;
     
-    for (Face f : cells[bufferIndex].coloredFaces) {
-      if (f.dir.y == 1) // down face
+    for (Face f : cells[bufferIndex].getColoredFaces()) {
+      if (f.getCurrentDir().y == 1) // down face
          bufferDownColor = f.col;
-      else if (f.dir.z == 1) // front face
+      else if (f.getCurrentDir().z == 1) // front face
          bufferFrontColor = f.col;
     }
     
@@ -439,9 +440,9 @@ class ThreeDimCube extends Cube {
         int index = 0;
         for (Cell c : cells) {
           // only check the edge pieces and don't allow for the new cell to be the buffer or the target
-          if (c.coloredFaces.size() == 2 && index != 9 && index != 17) {
+          if (c.getColoredFaces().size() == 2 && index != 9 && index != 17) {
             // if the swap cell is not in M slice or the M slice is correctly oriented, then swap with any cell
-            if (edgeSwapCount % 2 == 1 || c.currentX != 1) {
+            if (edgeSwapCount % 2 == 1 || c.getCurrentX() != 1) {
               if (!c.isSolved()) {
                 foundNewSwapCell = true;
                 break;
@@ -449,7 +450,7 @@ class ThreeDimCube extends Cube {
             }           
             else { // if the swap cell is in the M slice and the M slice is off, then it won't be in it's solved location
               // choose a cell that is not in the corresponding solved location with a flipped M slice
-              if (abs(c.solvedY - c.currentY) != 2 || abs(c.solvedZ - c.currentZ) != 2 || !c.isOppositeDirection()) {
+              if (abs(c.getSolvedY() - c.getCurrentY()) != 2 || abs(c.getSolvedZ() - c.getCurrentZ()) != 2 || !c.isOppositeDirection()) {
                 foundNewSwapCell = true;
                 break;
               }
@@ -460,13 +461,13 @@ class ThreeDimCube extends Cube {
         
         // if a new swap cell was found, then swap with it
         if (foundNewSwapCell) {
-          swapCellX = cells[index].currentX;
-          swapCellY = cells[index].currentY;
-          swapCellZ = cells[index].currentZ;
+          swapCellX = cells[index].getCurrentX();
+          swapCellY = cells[index].getCurrentY();
+          swapCellZ = cells[index].getCurrentZ();
           
-          swapCellDir.x = cells[index].coloredFaces.get(0).dir.x;
-          swapCellDir.y = cells[index].coloredFaces.get(0).dir.y;
-          swapCellDir.z = cells[index].coloredFaces.get(0).dir.z;
+          swapCellDir.x = cells[index].getColoredFace(0).getCurrentDir().x;
+          swapCellDir.y = cells[index].getColoredFace(0).getCurrentDir().y;
+          swapCellDir.z = cells[index].getColoredFace(0).getCurrentDir().z;
         }
         else { // when only the target and buffer are left to be solved
           // swap to A so that it will swap to Q after and both will be solved
@@ -522,7 +523,7 @@ class ThreeDimCube extends Cube {
     int bufferIndex = -1;
 
     for (int i = 0; i < cells.length; i++) {
-      if (cells[i].currentX == 0 && cells[i].currentY == 0 && cells[i].currentZ == 0) {
+      if (cells[i].getCurrentX() == 0 && cells[i].getCurrentY() == 0 && cells[i].getCurrentZ() == 0) {
         bufferIndex = i;
         break;
       }
@@ -533,12 +534,12 @@ class ThreeDimCube extends Cube {
     color bufferLeftColor = #FFFFFF;
     color bufferBackColor = #FFFFFF;
     
-    for (Face f : cells[bufferIndex].coloredFaces) {
-      if (f.dir.y == -1) // up face
+    for (Face f : cells[bufferIndex].getColoredFaces()) {
+      if (f.getCurrentDir().y == -1) // up face
         bufferUpColor = f.col;
-      else if (f.dir.x == -1) // left face
+      else if (f.getCurrentDir().x == -1) // left face
         bufferLeftColor = f.col;
-      else if (f.dir.z == -1) // back face
+      else if (f.getCurrentDir().z == -1) // back face
         bufferBackColor = f.col;
     }
     
@@ -730,16 +731,16 @@ class ThreeDimCube extends Cube {
       if (isBuffer) {
         for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
           // only check the corner pieces
-          if (cells[i].coloredFaces.size() == 3) {
+          if (cells[i].getColoredFaces().size() == 3) {
             // if the cell is in the incorrect position or flipped
             if (!cells[i].isSolved()) {
-              swapCellX = cells[i].currentX;
-              swapCellY = cells[i].currentY;
-              swapCellZ = cells[i].currentZ;
+              swapCellX = cells[i].getCurrentX();
+              swapCellY = cells[i].getCurrentY();
+              swapCellZ = cells[i].getCurrentZ();
               
-              swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
-              swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
-              swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
+              swapCellDir.x = cells[i].getColoredFace(0).getCurrentDir().x;
+              swapCellDir.y = cells[i].getColoredFace(0).getCurrentDir().y;
+              swapCellDir.z = cells[i].getColoredFace(0).getCurrentDir().z;
               
               break;
             }

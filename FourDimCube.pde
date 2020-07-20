@@ -1,18 +1,17 @@
 class FourDimCube extends Cube {
-  
   /*
-  Phase 1: Solved all center pieces
-  Phase 2: Solve all wing pieces
-  Phase 3: Solve all corner pieces
+    * Phase 1: Solved all center pieces with U2 method
+    * Phase 2: Solve all wing pieces with r2 method
+    * Phase 3: Solve all corner pieces with Modified Y Perm Algorithm
   */
   private int solvePhase;
   
-  // counter's to determine if parity after solving centers, wings, and corners
+  // counter's to determine if parity after centers, wings, and corners
   private int centerSwapCount;
   private int wingSwapCount;
   private int cornerSwapCount;
   
-  // constructor
+  // custom constructor
   FourDimCube() {
     super();
     
@@ -32,6 +31,7 @@ class FourDimCube extends Cube {
     cornerSwapCount = 0;
   }
   
+  // member functions
   public void solve() {
     isSolving = true;
     
@@ -97,7 +97,7 @@ class FourDimCube extends Cube {
   protected boolean isSolved() {
     // if any faces are not facing the corrent direction, then the cube is not solved
     for (Cell c : cells) {
-      if (c.coloredFaces.size() > 0) { // disregard the cells in the middle of the cube
+      if (c.getColoredFaces().size() > 0) { // disregard the cells in the middle of the cube
         if (c.isWrongDirection())
           return false;
       }
@@ -110,10 +110,10 @@ class FourDimCube extends Cube {
     // loop through all center pieces to see if any are in an incorrect position
     for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
       // only check if the center pieces are unsolved
-      if (cells[i].coloredFaces.size() == 1) {
-        if ((cells[i].currentX != cells[i].solvedX && (cells[i].solvedX == 0 || cells[i].solvedX == 3)) ||
-          (cells[i].currentY != cells[i].solvedY && (cells[i].solvedY == 0 || cells[i].solvedY == 3)) ||
-          (cells[i].currentZ != cells[i].solvedZ && (cells[i].solvedZ == 0 || cells[i].solvedZ == 3)))
+      if (cells[i].getColoredFaces().size() == 1) {
+        if ((cells[i].getCurrentX() != cells[i].getSolvedX() && (cells[i].getSolvedX() == 0 || cells[i].getSolvedX() == 3)) ||
+          (cells[i].getCurrentY() != cells[i].getSolvedY() && (cells[i].getSolvedY() == 0 || cells[i].getSolvedY() == 3)) ||
+          (cells[i].getCurrentZ() != cells[i].getSolvedZ() && (cells[i].getSolvedZ() == 0 || cells[i].getSolvedZ() == 3)))
             return false;
       }
     }
@@ -127,11 +127,11 @@ class FourDimCube extends Cube {
       // loop through all wing pieces to see if any are in the incorrect position or flipped
       for (Cell c : cells) {
         // only check the wing pieces
-        if (c.coloredFaces.size() == 2) {
+        if (c.getColoredFaces().size() == 2) {
           // if the cell is in the incorrect position or flipped
-          if ((c.currentX != c.solvedX && (c.solvedX == 0 || c.solvedX == 3)) ||
-            (c.currentY != c.solvedY && (c.solvedY == 0 || c.solvedY == 3)) ||
-            (c.currentZ != c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3)) || c.isWrongDirection())
+          if ((c.getCurrentX() != c.getSolvedX() && (c.getSolvedX() == 0 || c.getSolvedX() == 3)) ||
+            (c.getCurrentY() != c.getSolvedY() && (c.getSolvedY() == 0 || c.getSolvedY() == 3)) ||
+            (c.getCurrentZ() != c.getSolvedZ() && (c.getSolvedZ() == 0 || c.getSolvedZ() == 3)) || c.isWrongDirection())
               return false;
         }
       }
@@ -140,17 +140,17 @@ class FourDimCube extends Cube {
       int index = 0;
       for (Cell c : cells) {
         // only check the wing pieces
-        if (c.coloredFaces.size() == 2) {
-          if ((index == 19 || index == 28 || index == 35 || index == 44) && c.currentX == 2) {
-            if (((c.currentX == c.solvedX || c.solvedX == 1 || c.solvedX == 2) &&
-              (c.currentY == c.solvedY || c.solvedY == 1 || c.solvedY == 2) &&
-              (c.currentZ == c.solvedZ || c.solvedZ == 1 || c.solvedZ == 2) && !c.isWrongDirection()) || !c.isOppositeDirection())
+        if (c.getColoredFaces().size() == 2) {
+          if ((index == 19 || index == 28 || index == 35 || index == 44) && c.getCurrentX() == 2) {
+            if (((c.getCurrentX() == c.getSolvedX() || c.getSolvedX() == 1 || c.getSolvedX() == 2) &&
+              (c.getCurrentY() == c.getSolvedY() || c.getSolvedY() == 1 || c.getSolvedY() == 2) &&
+              (c.getCurrentZ() == c.getSolvedZ() || c.getSolvedZ() == 1 || c.getSolvedZ() == 2) && !c.isWrongDirection()) || !c.isOppositeDirection())
                 return false;
           }
           else {
-            if ((c.currentX != c.solvedX && (c.solvedX == 0 || c.solvedX == 3)) ||
-              (c.currentY != c.solvedY && (c.solvedY == 0 || c.solvedY == 3)) ||
-              (c.currentZ != c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3)) || c.isWrongDirection())
+            if ((c.getCurrentX() != c.getSolvedX() && (c.getSolvedX() == 0 || c.getSolvedX() == 3)) ||
+              (c.getCurrentY() != c.getSolvedY() && (c.getSolvedY() == 0 || c.getSolvedY() == 3)) ||
+              (c.getCurrentZ() != c.getSolvedZ() && (c.getSolvedZ() == 0 || c.getSolvedZ() == 3)) || c.isWrongDirection())
                 return false;
           }
         }
@@ -164,7 +164,7 @@ class FourDimCube extends Cube {
   private boolean areCornersSolved() {
     for (Cell c : cells) {
       // only check the corner pieces
-      if (c.coloredFaces.size() == 3 && !c.isSolved())
+      if (c.getColoredFaces().size() == 3 && !c.isSolved())
         return false;
     }
     
@@ -182,14 +182,14 @@ class FourDimCube extends Cube {
     int bufferIndex = -1;
 
     for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
-      if (cells[i].currentX == 1 && cells[i].currentY == 0 && cells[i].currentZ == 1) {
+      if (cells[i].getCurrentX() == 1 && cells[i].getCurrentY() == 0 && cells[i].getCurrentZ() == 1) {
         bufferIndex = i;
         break;
       }
     }
     
     // getting the face color of the buffer cell
-    color bufferColor = cells[bufferIndex].coloredFaces.get(0).col;
+    color bufferColor = cells[bufferIndex].getColoredFace(0).col;
     
     // find where the buffer needs to go
     int swapCellX = -1;
@@ -244,11 +244,11 @@ class FourDimCube extends Cube {
       if (swapCellY == 0) {
         for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
           // only check the center pieces on the side that is being swapped with
-          if (cells[i].coloredFaces.size() == 1 && cells[i].currentY == swapCellY) {
+          if (cells[i].getColoredFaces().size() == 1 && cells[i].getCurrentY() == swapCellY) {
             // only swap with a cell that is not already solved
-            if (cells[i].coloredFaces.get(0).col != #FFFFFF) {
-              if ((cells[i].currentX == 2 && cells[i].currentZ == 1 && centerSwapCount % 2 == 1) || // B Face and 1st in pair
-                (cells[i].currentX == 1 && cells[i].currentZ == 2 && centerSwapCount % 2 == 0)) { // D Face and 2nd in pair
+            if (cells[i].getColoredFace(0).getColor() != #FFFFFF) {
+              if ((cells[i].getCurrentX() == 2 && cells[i].getCurrentZ() == 1 && centerSwapCount % 2 == 1) || // B Face and 1st in pair
+                (cells[i].getCurrentX() == 1 && cells[i].getCurrentZ() == 2 && centerSwapCount % 2 == 0)) { // D Face and 2nd in pair
                   // special case - add directly to solve sequence
                   solveTurnSequence.add(new TurnAnimation('R', -1)); // R'
                   solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
@@ -268,14 +268,14 @@ class FourDimCube extends Cube {
                   solveTurnSequence.add(new TurnAnimation('U', 1)); // U
                   return setUpSequence; // no need to search further
               }
-              else if (cells[i].currentX == 2 && cells[i].currentZ == 2) { // C Face
+              else if (cells[i].getCurrentX() == 2 && cells[i].getCurrentZ() == 2) { // C Face
                 // special case - add directly to solve sequence
                 solveTurnSequence.add(new TurnAnimation('U', 1)); // U
                 solveTurnSequence.add(new TurnAnimation('U', 1)); // U
                 return setUpSequence; // no need to search further  
               }
-              else if ((cells[i].currentX == 1 && cells[i].currentZ == 2 && centerSwapCount % 2 == 1) || // D Face and 1st in pair
-                (cells[i].currentX == 2 && cells[i].currentZ == 1 && centerSwapCount % 2 == 0)) { // B Face and 2nd in pair
+              else if ((cells[i].getCurrentX() == 1 && cells[i].getCurrentZ() == 2 && centerSwapCount % 2 == 1) || // D Face and 1st in pair
+                (cells[i].getCurrentX() == 2 && cells[i].getCurrentZ() == 1 && centerSwapCount % 2 == 0)) { // B Face and 2nd in pair
                   // special case - add directly to solve sequence
                   solveTurnSequence.add(new TurnAnimation('L', -1)); // L
                   solveTurnSequence.add(new TurnAnimation('l', -1)); // l
@@ -302,17 +302,17 @@ class FourDimCube extends Cube {
       else if (swapCellX == 0) {
         for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
           // only check the center pieces on the side that is being swapped with
-          if (cells[i].coloredFaces.size() == 1 && cells[i].currentX == swapCellX) {
+          if (cells[i].getColoredFaces().size() == 1 && cells[i].getCurrentX() == swapCellX) {
             // only swap with a cell that is not already solved
-            if (cells[i].coloredFaces.get(0).col != #FF8D1A) {
-              if (cells[i].currentY == 1) {
-                if (cells[i].currentZ == 1) { // E Face
+            if (cells[i].getColoredFace(0).getColor() != #FF8D1A) {
+              if (cells[i].getCurrentY() == 1) {
+                if (cells[i].getCurrentZ() == 1) { // E Face
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   return setUpSequence; // no need to search further
                 }
-                else if (cells[i].currentZ == 2) { // F Face
+                else if (cells[i].getCurrentZ() == 2) { // F Face
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
                   setUpSequence.add(new TurnAnimation('f', -1)); // f'
                   setUpSequence.add(new TurnAnimation('u', -1)); // u'
@@ -320,14 +320,14 @@ class FourDimCube extends Cube {
                   return setUpSequence; // no need to search further
                 }
               }
-              else if (cells[i].currentY == 2) {
-                if (cells[i].currentZ == 2) { // G Face
+              else if (cells[i].getCurrentY() == 2) {
+                if (cells[i].getCurrentZ() == 2) { // G Face
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   return setUpSequence; // no need to search further  
                 }
-                else if (cells[i].currentZ == 1) { // H Face
+                else if (cells[i].getCurrentZ() == 1) { // H Face
                   setUpSequence.add(new TurnAnimation('f', 1)); // f
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
@@ -342,33 +342,33 @@ class FourDimCube extends Cube {
       else if (swapCellZ == 3) {
         for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
           // only check the center pieces on the side that is being swapped with
-          if (cells[i].coloredFaces.size() == 1 && cells[i].currentZ == swapCellZ) {
+          if (cells[i].getColoredFaces().size() == 1 && cells[i].getCurrentZ() == swapCellZ) {
             // only swap with a cell that is not already solved
-            if (cells[i].coloredFaces.get(0).col != #00FF00) {
-              if (cells[i].currentY == 1) {
-                if (cells[i].currentX == 1) { // I Face
+            if (cells[i].getColoredFace(0).getColor() != #00FF00) {
+              if (cells[i].getCurrentY() == 1) {
+                if (cells[i].getCurrentX() == 1) { // I Face
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   return setUpSequence; // no need to search further
                 }
-                else if (cells[i].currentX == 2) { // J Face
+                else if (cells[i].getCurrentX() == 2) { // J Face
                   setUpSequence.add(new TurnAnimation('f', -1)); // f'
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
                   setUpSequence.add(new TurnAnimation('f', 1)); // f
                   return setUpSequence; // no need to search further
                 }
               }
-              else if (cells[i].currentY == 2) {
-                if (cells[i].currentX == 2) { // K Face
+              else if (cells[i].getCurrentY() == 2) {
+                if (cells[i].getCurrentX() == 2) { // K Face
                   setUpSequence.add(new TurnAnimation('d', 1)); // d'
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   return setUpSequence; // no need to search further  
                 }
-                else if (cells[i].currentX == 1) { // L Face
+                else if (cells[i].getCurrentX() == 1) { // L Face
                   setUpSequence.add(new TurnAnimation('f', 1)); // f
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
                   setUpSequence.add(new TurnAnimation('f', -1)); // f'
@@ -382,17 +382,17 @@ class FourDimCube extends Cube {
       else if (swapCellX == 3) {
         for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
           // only check the center pieces on the side that is being swapped with
-          if (cells[i].coloredFaces.size() == 1 && cells[i].currentX == swapCellX) {
+          if (cells[i].getColoredFaces().size() == 1 && cells[i].getCurrentX() == swapCellX) {
             // only swap with a cell that is not already solved
-            if (cells[i].coloredFaces.get(0).col != #FF0000) {
-              if (cells[i].currentY == 1) {
-                if (cells[i].currentZ == 2) { // M Face
+            if (cells[i].getColoredFace(0).getColor() != #FF0000) {
+              if (cells[i].getCurrentY() == 1) {
+                if (cells[i].getCurrentZ() == 2) { // M Face
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   setUpSequence.add(new TurnAnimation('u', -1)); // u'
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   return setUpSequence; // no need to search further
                 }
-                else if (cells[i].currentZ == 1) { // N Face
+                else if (cells[i].getCurrentZ() == 1) { // N Face
                   setUpSequence.add(new TurnAnimation('f', -1)); // f'
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
@@ -400,14 +400,14 @@ class FourDimCube extends Cube {
                   return setUpSequence; // no need to search further
                 }
               }
-              else if (cells[i].currentY == 2) {
-                if (cells[i].currentZ == 1) { // O Face
+              else if (cells[i].getCurrentY() == 2) {
+                if (cells[i].getCurrentZ() == 1) { // O Face
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   setUpSequence.add(new TurnAnimation('d', 1)); // d'
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   return setUpSequence; // no need to search further  
                 }
-                else if (cells[i].currentZ == 2) { // P Face
+                else if (cells[i].getCurrentZ() == 2) { // P Face
                   setUpSequence.add(new TurnAnimation('d', 1)); // d'
                   setUpSequence.add(new TurnAnimation('f', 1)); // f
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
@@ -422,33 +422,33 @@ class FourDimCube extends Cube {
       else if (swapCellZ == 0) {
         for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
           // only check the center pieces on the side that is being swapped with
-          if (cells[i].coloredFaces.size() == 1 && cells[i].currentZ == swapCellZ) {
+          if (cells[i].getColoredFaces().size() == 1 && cells[i].getCurrentZ() == swapCellZ) {
             // only swap with a cell that is not already solved
-            if (cells[i].coloredFaces.get(0).col != #0000FF) {
-              if (cells[i].currentY == 1) {
-                if (cells[i].currentX == 2) { // Q Face
+            if (cells[i].getColoredFace(0).getColor() != #0000FF) {
+              if (cells[i].getCurrentY() == 1) {
+                if (cells[i].getCurrentX() == 2) { // Q Face
                   setUpSequence.add(new TurnAnimation('u', 1)); // u
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   setUpSequence.add(new TurnAnimation('u', -1)); // u'
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   return setUpSequence; // no need to search further
                 }
-                else if (cells[i].currentX == 1) { // R Face
+                else if (cells[i].getCurrentX() == 1) { // R Face
                   setUpSequence.add(new TurnAnimation('f', -1)); // f'
                   setUpSequence.add(new TurnAnimation('u', -1)); // u'
                   setUpSequence.add(new TurnAnimation('f', 1)); // f
                   return setUpSequence; // no need to search further
                 }
               }
-              else if (cells[i].currentY == 2) {
-                if (cells[i].currentX == 1) { // S Face
+              else if (cells[i].getCurrentY() == 2) {
+                if (cells[i].getCurrentX() == 1) { // S Face
                   setUpSequence.add(new TurnAnimation('r', -1)); // r'
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
                   setUpSequence.add(new TurnAnimation('d', -1)); // d
                   setUpSequence.add(new TurnAnimation('r', 1)); // r
                   return setUpSequence; // no need to search further  
                 }
-                else if (cells[i].currentX == 2) { // T Face
+                else if (cells[i].getCurrentX() == 2) { // T Face
                   setUpSequence.add(new TurnAnimation('f', 1)); // f
                   setUpSequence.add(new TurnAnimation('d', 1)); // d'
                   setUpSequence.add(new TurnAnimation('f', -1)); // f'
@@ -462,18 +462,18 @@ class FourDimCube extends Cube {
       else if (swapCellY == 3) {
         for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
           // only check the center pieces on the side that is being swapped with
-          if (cells[i].coloredFaces.size() == 1 && cells[i].currentY == swapCellY) {
+          if (cells[i].getColoredFaces().size() == 1 && cells[i].getCurrentY() == swapCellY) {
             // only swap with a cell that is not already solved
-            if (cells[i].coloredFaces.get(0).col != #FFFF00) {
+            if (cells[i].getColoredFace(0).getColor() != #FFFF00) {
               // special case - add directly to solve sequence
-              if (cells[i].currentX == 1 && cells[i].currentZ == 2) { // U Face
+              if (cells[i].getCurrentX() == 1 && cells[i].getCurrentZ() == 2) { // U Face
                 solveTurnSequence.add(new TurnAnimation('D', -1)); // D
               }
-              else if (cells[i].currentZ == 1) {
-                if (cells[i].currentX == 2) { // W Face
+              else if (cells[i].getCurrentZ() == 1) {
+                if (cells[i].getCurrentX() == 2) { // W Face
                   solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
                 }
-                else if (cells[i].currentX == 1) { // X Face
+                else if (cells[i].getCurrentX() == 1) { // X Face
                   solveTurnSequence.add(new TurnAnimation('D', -1)); // D
                   solveTurnSequence.add(new TurnAnimation('D', -1)); // D
                 }
@@ -499,14 +499,14 @@ class FourDimCube extends Cube {
               solveTurnSequence.add(new TurnAnimation('U', 1)); // U
               
               // invert the special setup moves
-              if (cells[i].currentX == 1 && cells[i].currentZ == 2) { // U Face
+              if (cells[i].getCurrentX() == 1 && cells[i].getCurrentZ() == 2) { // U Face
                 solveTurnSequence.add(new TurnAnimation('D', 1)); // D'
               }
-              else if (cells[i].currentZ == 1) {
-                if (cells[i].currentX == 2) { // W Face
+              else if (cells[i].getCurrentZ() == 1) {
+                if (cells[i].getCurrentX() == 2) { // W Face
                   solveTurnSequence.add(new TurnAnimation('D', -1)); // D
                 }
-                else if (cells[i].currentX == 1) { // X Face
+                else if (cells[i].getCurrentX() == 1) { // X Face
                   solveTurnSequence.add(new TurnAnimation('D', -1)); // D
                   solveTurnSequence.add(new TurnAnimation('D', -1)); // D
                 }
@@ -521,13 +521,13 @@ class FourDimCube extends Cube {
       // if no cell was found and the function has not returned, then pick any unsolved piece
       for (int i = 5; i < cells.length-5; i++) { // the first center is at index 5 and the last is the 6th to last in the array
         // only check the center pieces that are are unsolved
-        if (cells[i].coloredFaces.size() == 1) {
-          if ((cells[i].currentX != cells[i].solvedX && (cells[i].solvedX == 0 || cells[i].solvedX == 3)) ||
-            (cells[i].currentY != cells[i].solvedY && (cells[i].solvedY == 0 || cells[i].solvedY == 3)) ||
-            (cells[i].currentZ != cells[i].solvedZ && (cells[i].solvedZ == 0 || cells[i].solvedZ == 3))) {
-              swapCellX = cells[i].currentX;
-              swapCellY = cells[i].currentY;
-              swapCellZ = cells[i].currentZ;
+        if (cells[i].getColoredFaces().size() == 1) {
+          if ((cells[i].getCurrentX() != cells[i].getSolvedX() && (cells[i].getSolvedX() == 0 || cells[i].getSolvedX() == 3)) ||
+            (cells[i].getCurrentY() != cells[i].getSolvedY() && (cells[i].getSolvedY() == 0 || cells[i].getSolvedY() == 3)) ||
+            (cells[i].getCurrentZ() != cells[i].getSolvedZ() && (cells[i].getSolvedZ() == 0 || cells[i].getSolvedZ() == 3))) {
+              swapCellX = cells[i].getCurrentX();
+              swapCellY = cells[i].getCurrentY();
+              swapCellZ = cells[i].getCurrentZ();
               break;
           }
         }
@@ -556,7 +556,7 @@ class FourDimCube extends Cube {
     int bufferIndex = -1;
 
     for (int i = 1; i < cells.length-1; i++) { // first wing is at index 1 and the last is the 2nd to last in the array
-      if (cells[i].currentX == 2 && cells[i].currentY == 3 && cells[i].currentZ == 3) {
+      if (cells[i].getCurrentX() == 2 && cells[i].getCurrentY() == 3 && cells[i].getCurrentZ() == 3) {
         bufferIndex = i;
         break;
       }
@@ -566,10 +566,10 @@ class FourDimCube extends Cube {
     color bufferDownColor = #FFFFFF;
     color bufferFrontColor = #FFFFFF;
     
-    for (Face f : cells[bufferIndex].coloredFaces) {
-      if (f.dir.y == 1) // down face
+    for (Face f : cells[bufferIndex].getColoredFaces()) {
+      if (f.getCurrentDir().y == 1) // down face
          bufferDownColor = f.col;
-      else if (f.dir.z == 1) // front face
+      else if (f.getCurrentDir().z == 1) // front face
          bufferFrontColor = f.col;
     }
     
@@ -874,12 +874,12 @@ class FourDimCube extends Cube {
         int index = 0;
         for (Cell c : cells) {
           // only check the wing pieces and don't allow for the new cell to be the buffer or the target
-          if (c.coloredFaces.size() == 2 && index != 16 && index != 31 && index != 32 && index != 47) {
+          if (c.getColoredFaces().size() == 2 && index != 16 && index != 31 && index != 32 && index != 47) {
             // if the swap cell is not in r slice or the r slice is correctly oriented, then swap with any cell
-            if (wingSwapCount % 2 == 1 || c.currentX != 2) {
-              if ((c.currentX != c.solvedX && (c.solvedX == 0 || c.solvedX == 3)) ||
-                (c.currentY != c.solvedY && (c.solvedY == 0 || c.solvedY == 3)) ||
-                (c.currentZ != c.solvedZ && (c.solvedZ == 0 || c.solvedZ == 3)) || c.isWrongDirection()) {
+            if (wingSwapCount % 2 == 1 || c.getCurrentX() != 2) {
+              if ((c.getCurrentX() != c.getSolvedX() && (c.getSolvedX() == 0 || c.getSolvedX() == 3)) ||
+                (c.getCurrentY() != c.getSolvedY() && (c.getSolvedY() == 0 || c.getSolvedY() == 3)) ||
+                (c.getCurrentZ() != c.getSolvedZ() && (c.getSolvedZ() == 0 || c.getSolvedZ() == 3)) || c.isWrongDirection()) {
                   foundNewSwapCell = true;
                   swapCellIndex = index;
                   break;
@@ -887,7 +887,7 @@ class FourDimCube extends Cube {
             }
             else { // if the swap cell is in the r slice and the r slice is off, then it won't be in it's solved location
               // chose a cell that is not in the corresponding solved location with a flipped r slice
-              if (abs(c.solvedY - c.currentY) != 3 || abs(c.solvedZ - c.currentZ) != 3 || !c.isOppositeDirection()) {
+              if (abs(c.getSolvedY() - c.getCurrentY()) != 3 || abs(c.getSolvedZ() - c.getCurrentZ()) != 3 || !c.isOppositeDirection()) {
                 foundNewSwapCell = true;
                 swapCellIndex = index;
                 break;
@@ -899,26 +899,29 @@ class FourDimCube extends Cube {
         
         // if a new swap cell was found, then swap with it
         if (foundNewSwapCell) {
-          swapCellX = cells[swapCellIndex].currentX;
-          swapCellY = cells[swapCellIndex].currentY;
-          swapCellZ = cells[swapCellIndex].currentZ;
+          swapCellX = cells[swapCellIndex].getCurrentX();
+          swapCellY = cells[swapCellIndex].getCurrentY();
+          swapCellZ = cells[swapCellIndex].getCurrentZ();
           
-          swapCellDir.x = cells[swapCellIndex].coloredFaces.get(0).dir.x;
-          swapCellDir.y = cells[swapCellIndex].coloredFaces.get(0).dir.y;
-          swapCellDir.z = cells[swapCellIndex].coloredFaces.get(0).dir.z;
+          swapCellDir.x = cells[swapCellIndex].getColoredFace(0).getCurrentDir().x;
+          swapCellDir.y = cells[swapCellIndex].getColoredFace(0).getCurrentDir().y;
+          swapCellDir.z = cells[swapCellIndex].getColoredFace(0).getCurrentDir().z;
         }
         else { // when only the target and buffer are left to be solved
-          // swap to A so that it will swap to Q after and both will be solved
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
-          solveTurnSequence.add(new TurnAnimation('r', -1)); // r'
+          // swap to Q so that it will not loop continuously
+          setUpSequence.add(new TurnAnimation('U', 1)); // U
+          setUpSequence.add(new TurnAnimation('B', 1)); // B'
+          setUpSequence.add(new TurnAnimation('R', 1)); // R
+          setUpSequence.add(new TurnAnimation('U', -1)); // U'
+          setUpSequence.add(new TurnAnimation('B', -1)); // B
           return setUpSequence;
         }
       }
       // if the wrong side is chosen when the swap cell is also the buffer
       else if (wrongSide) {
-        swapCellDir.x = cells[swapCellIndex].coloredFaces.get(1).dir.x;
-        swapCellDir.y = cells[swapCellIndex].coloredFaces.get(1).dir.y;
-        swapCellDir.z = cells[swapCellIndex].coloredFaces.get(1).dir.z;
+        swapCellDir.x = cells[swapCellIndex].getColoredFace(1).getCurrentDir().x;
+        swapCellDir.y = cells[swapCellIndex].getColoredFace(1).getCurrentDir().y;
+        swapCellDir.z = cells[swapCellIndex].getColoredFace(1).getCurrentDir().z;
       }
     } while (isBuffer || wrongSide);
     
@@ -982,7 +985,7 @@ class FourDimCube extends Cube {
     int bufferIndex = -1;
 
     for (int i = 0; i < cells.length; i++) {
-      if (cells[i].currentX == 0 && cells[i].currentY == 0 && cells[i].currentZ == 0) {
+      if (cells[i].getCurrentX() == 0 && cells[i].getCurrentY() == 0 && cells[i].getCurrentZ() == 0) {
         bufferIndex = i;
         break;
       }
@@ -993,12 +996,12 @@ class FourDimCube extends Cube {
     color bufferLeftColor = #FFFFFF;
     color bufferBackColor = #FFFFFF;
     
-    for (Face f : cells[bufferIndex].coloredFaces) {
-      if (f.dir.y == -1) // up face
+    for (Face f : cells[bufferIndex].getColoredFaces()) {
+      if (f.getCurrentDir().y == -1) // up face
         bufferUpColor = f.col;
-      else if (f.dir.x == -1) // left face
+      else if (f.getCurrentDir().x == -1) // left face
         bufferLeftColor = f.col;
-      else if (f.dir.z == -1) // back face
+      else if (f.getCurrentDir().z == -1) // back face
         bufferBackColor = f.col;
     }
     
@@ -1193,16 +1196,16 @@ class FourDimCube extends Cube {
       if (isBuffer) {
         for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
           // only check the corner pieces
-          if (cells[i].coloredFaces.size() == 3) {
+          if (cells[i].getColoredFaces().size() == 3) {
             // if the cell is in the incorrect position or flipped
             if (!cells[i].isSolved()) {
-              swapCellX = cells[i].currentX;
-              swapCellY = cells[i].currentY;
-              swapCellZ = cells[i].currentZ;
+              swapCellX = cells[i].getCurrentX();
+              swapCellY = cells[i].getCurrentY();
+              swapCellZ = cells[i].getCurrentZ();
               
-              swapCellDir.x = cells[i].coloredFaces.get(0).dir.x;
-              swapCellDir.y = cells[i].coloredFaces.get(0).dir.y;
-              swapCellDir.z = cells[i].coloredFaces.get(0).dir.z;
+              swapCellDir.x = cells[i].getColoredFace(0).getCurrentDir().x;
+              swapCellDir.y = cells[i].getColoredFace(0).getCurrentDir().y;
+              swapCellDir.z = cells[i].getColoredFace(0).getCurrentDir().z;
               
               break;
             }
