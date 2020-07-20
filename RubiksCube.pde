@@ -1,32 +1,5 @@
-/*
-  new TurnAnimation('L', -1); // L
-  new TurnAnimation('l', -1); // l
-  new TurnAnimation('M', -1); // M
-  new TurnAnimation('R', 1); // R
-  new TurnAnimation('r', 1); // r
-  
-  new TurnAnimation('U', 1); // U
-  new TurnAnimation('u', 1); // u
-  new TurnAnimation('E', -1); // E
-  new TurnAnimation('D', -1); // D
-  new TurnAnimation('d', -1); // d
-  
-  new TurnAnimation('B', -1); // B
-  new TurnAnimation('b', -1); // b
-  new TurnAnimation('S', 1); // S
-  new TurnAnimation('F', 1); // F
-  new TurnAnimation('f', 1); // f
-*/
-
 import java.util.*;
 import peasy.*;
-
-PeasyCam camera;
-
-// creating the initial 3x3 rubik's cube
-Cube rubiksCube = new ThreeDimCube();
-
-boolean isCubeMoveable;
 
 // HUD button constants
 final int BTN_HEIGHT = 50;
@@ -48,6 +21,13 @@ final int FOUR_BY_FOUR_X = MIDDLE_BTN + BOT_BTN_WIDTH + BOT_BTN_GAP;
 final int TOP_SIDE_BTN_Y = MIDDLE_BTN - BTN_HEIGHT - SIDE_BTN_GAP;
 final int BOT_SIDE_BTN_Y = MIDDLE_BTN + BTN_HEIGHT + SIDE_BTN_GAP;
 
+// mouse-driven camera for Processing
+PeasyCam camera;
+
+Cube rubiksCube;
+
+boolean isCubeMoveable;
+
 void setup() {
   // window size and 3D renderer
   size(600, 600, P3D);
@@ -66,6 +46,9 @@ void setup() {
   PFont font;
   font = loadFont("Arial-BoldMT-32.vlw");
   textFont(font);
+  
+  // creating the initial 3x3 rubik's cube
+  rubiksCube = new ThreeDimCube();
   
   // build the rubik's cube
   rubiksCube.build();
@@ -104,7 +87,6 @@ void draw() {
   
   // HUD
   camera.beginHUD();
-
   fill(120);
   stroke(0);
   strokeWeight(3);
@@ -157,7 +139,6 @@ void draw() {
   text("2x", RIGHT_BTN_X, TOP_SIDE_BTN_Y);
   text("5x", RIGHT_BTN_X, MIDDLE_BTN);
   text("10x", RIGHT_BTN_X, BOT_SIDE_BTN_Y);
-  
   camera.endHUD();
 }
 
@@ -190,7 +171,8 @@ boolean checkButtonHover() {
 }
 
 void mousePressed() {
-  if (mouseButton == LEFT) {
+  // supports left and right handed
+  if (mouseButton == LEFT || mouseButton == RIGHT) {
     if (mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2))) {
       // scramble button
       if (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
@@ -212,6 +194,7 @@ void mousePressed() {
         if (!rubiksCube.isSolved()) {
           float prevTurnSpeed = rubiksCube.getTurnSpeed();
           
+          // create a new cube with the same dimensions
           switch(rubiksCube.getDimensions()) {
             case 2: {
               rubiksCube = new TwoDimCube();
@@ -308,14 +291,14 @@ void mousePressed() {
 
 void mouseReleased() {
   if (isCubeMoveable && !rubiksCube.isScrambling && !rubiksCube.isSolving) {
-    if (rubiksCube.turn.angle > QUARTER_PI) {
-      rubiksCube.turn.angle = HALF_PI;
+    if (rubiksCube.getCurrentTurn().getAngle() > QUARTER_PI) {
+      rubiksCube.getCurrentTurn().setAngle(HALF_PI);
     }
-    else if (rubiksCube.turn.angle < -QUARTER_PI) {
-      rubiksCube.turn.angle = -HALF_PI;
+    else if (rubiksCube.getCurrentTurn().angle < -QUARTER_PI) {
+      rubiksCube.getCurrentTurn().setAngle(-HALF_PI);
     }
     else {
-      rubiksCube.turn.angle = 0;
+      rubiksCube.getCurrentTurn().setAngle(0);
       rubiksCube.isBeingMoved = false;
       rubiksCube.isTurning = false;
     }

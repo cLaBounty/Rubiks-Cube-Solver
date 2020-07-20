@@ -1,37 +1,46 @@
 class Cell {
-  public int solvedX, solvedY, solvedZ;
-  public int currentX, currentY, currentZ;
+  private int solvedX, solvedY, solvedZ;
+  private int currentX, currentY, currentZ;
   private PMatrix3D matrix;
   private float len;
   private ArrayList<Face> innerFaces;
-  public ArrayList<Face> coloredFaces;
+  private ArrayList<Face> coloredFaces;
   
   /*
-    - Set colors and directions for each side of the cell
-    - Ordered: UP, DOWN, FRONT, BACK, LEFT, RIGHT
-    - White = UP and Green = FRONT
+    * Set colors and directions for each side of the cell
+    * Ordered: UP, DOWN, FRONT, BACK, LEFT, RIGHT
+    * White = UP and Green = FRONT
   */
-  final color[] SIDE_COLORS = {
+  private final color[] SIDE_COLORS = {
     #FFFFFF, #FFFF00, #00FF00,
     #0000FF, #FF8D1A, #FF0000
   };
   
-  final PVector[] DIRECTIONS = {
+  private final PVector[] DIRECTIONS = {
     new PVector(0, -1, 0), new PVector(0, 1, 0),
     new PVector(0, 0, 1), new PVector(0, 0, -1),
     new PVector(-1, 0, 0), new PVector(1, 0, 0)
   };
   
-  // constructor
+  // getters
+  public int getSolvedX() { return solvedX; }
+  public int getSolvedY() { return solvedY; }
+  public int getSolvedZ() { return solvedZ; }
+  public int getCurrentX() { return currentX; }
+  public int getCurrentY() { return currentY; }
+  public int getCurrentZ() { return currentZ; }
+  public ArrayList<Face> getColoredFaces() { return coloredFaces; }
+  public Face getColoredFace(int index) { return coloredFaces.get(index); }
+  
+  // custom constructor
   Cell(int startX, int startY, int startZ, PMatrix3D matrix, int cubeDim, float len) {
     this.currentX = this.solvedX = startX;
     this.currentY = this.solvedY = startY;
     this.currentZ = this.solvedZ = startZ;
     this.matrix = matrix;
     this.len = len;
-    
-    innerFaces = new ArrayList<Face>();
-    coloredFaces = new ArrayList<Face>();
+    this.innerFaces = new ArrayList<Face>();
+    this.coloredFaces = new ArrayList<Face>();
     
     // determine which faces are colored and which are black (inside the cube)
     final boolean FACE_CASES[] = {
@@ -87,7 +96,7 @@ class Cell {
   }
   
   public boolean isWrongDirection() {
-    if (coloredFaces.get(0).dir.x == coloredFaces.get(0).initialDir.x && coloredFaces.get(0).dir.y == coloredFaces.get(0).initialDir.y)
+    if (coloredFaces.get(0).getCurrentDir().x == coloredFaces.get(0).getInitialDir().x && coloredFaces.get(0).getCurrentDir().y == coloredFaces.get(0).getInitialDir().y)
       return false;
     
     return true;
@@ -95,7 +104,7 @@ class Cell {
   
   public boolean isOppositeDirection() {
     for (Face f : coloredFaces) {
-      if (f.dir.x != -1 * f.initialDir.x || f.dir.y != -1 * f.initialDir.y || f.dir.z != -1 * f.initialDir.z)
+      if (f.getCurrentDir().x != -1 * f.getInitialDir().x || f.getCurrentDir().y != -1 * f.getInitialDir().y || f.getCurrentDir().z != -1 * f.getInitialDir().z)
         return false;
     }
     

@@ -1,15 +1,21 @@
 class Face {
-  public PVector initialDir;
-  public PVector dir;
-  public color col;
+  private PVector initialDir;
+  private PVector currentDir;
+  private color col;
   private float len;
   private float trueXLength;
   private float trueYLength;
-  public PVector centerScrnPos;
+  private PVector centerScrnPos;
   
-  // constructor
+  // getters
+  public PVector getInitialDir() { return initialDir; }
+  public PVector getCurrentDir() { return currentDir; }
+  public color getColor() { return col; }
+  public PVector getCenterScrnPos() { return centerScrnPos; }
+  
+  // custom constructor
   Face(PVector dir, color col, float len) {
-    this.initialDir = this.dir = dir;
+    this.initialDir = this.currentDir = dir;
     this.col = col;
     this.len = len;
     trueXLength = len;
@@ -23,11 +29,11 @@ class Face {
     fill(col);
     noStroke();
     
-    translate((dir.x / 2) * len, (dir.y / 2) * len, (dir.z / 2) * len);
+    translate((currentDir.x / 2) * len, (currentDir.y / 2) * len, (currentDir.z / 2) * len);
     
     // rotate face relative to the direction
-    rotateX(dir.y * HALF_PI);
-    rotateY(dir.x * HALF_PI);
+    rotateX(currentDir.y * HALF_PI);
+    rotateY(currentDir.x * HALF_PI);
     
     square(0, 0, len);
     
@@ -72,25 +78,25 @@ class Face {
      
      switch(fixedAxis) {
        case 'X': {
-         temp.x = dir.x; // fixed
-         temp.y = -dir.z * dirValue;
-         temp.z = dir.y * dirValue;
+         temp.x = currentDir.x; // fixed
+         temp.y = -currentDir.z * dirValue;
+         temp.z = currentDir.y * dirValue;
          break;  
        }
        case 'Y': {
-         temp.x = -dir.z * dirValue;
-         temp.y = dir.y; // fixed
-         temp.z = dir.x * dirValue;
+         temp.x = -currentDir.z * dirValue;
+         temp.y = currentDir.y; // fixed
+         temp.z = currentDir.x * dirValue;
          break;  
        }
        case 'Z': {
-         temp.x = -dir.y * dirValue;
-         temp.y = dir.x * dirValue;
-         temp.z = dir.z; // fixed
+         temp.x = -currentDir.y * dirValue;
+         temp.y = currentDir.x * dirValue;
+         temp.z = currentDir.z; // fixed
          break;
        }
      }
      
-     this.dir = temp;
+     this.currentDir = temp;
   }
 }
