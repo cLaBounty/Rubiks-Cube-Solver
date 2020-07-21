@@ -31,6 +31,10 @@ boolean isCubeMoveable;
 void setup() {
   // window size and 3D renderer
   size(600, 600, P3D);
+  //fullScreen(P3D);
+  
+  // 4x anti-aliasing
+  smooth(4);
   
   // camera setup
   camera = new PeasyCam(this, 400);
@@ -49,8 +53,6 @@ void setup() {
   
   // creating the initial 3x3 rubik's cube
   rubiksCube = new ThreeDimCube();
-  
-  // build the rubik's cube
   rubiksCube.build();
 }
 
@@ -72,13 +74,14 @@ void draw() {
     isCubeMoveable = false;
   }
   else {
-    if (!checkButtonHover()) {
-      // unable to move camera
-      camera.setActive(false);
-      cursor(CROSS);
+    // unable to move camera
+    camera.setActive(false);
     
-      // able to edit cube
+    if (!checkButtonHover()) {
+      // able to edit the cube
       isCubeMoveable = true;
+      
+      cursor(CROSS);
     }
     else {
       cursor(HAND);
@@ -170,114 +173,123 @@ boolean checkButtonHover() {
   return false;
 }
 
+void mouseClicked() {
+  // supports left and right handed
+  if (mouseButton == LEFT || mouseButton == RIGHT) {
+    // when the camera is not active
+    if (!keyPressed || keyCode != CONTROL) {
+      if (mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2))) {
+        // scramble button
+        if (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
+          if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
+            rubiksCube.scramble();
+        }
+        // reset button
+        else if (mouseX < (MIDDLE_BTN + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (TOP_BTN_WIDTH / 2))) {
+          // reset camera
+          camera = new PeasyCam(this, 400);
+          camera.rotateX(radians(25));
+          camera.rotateY(radians(30));
+          camera.rotateZ(radians(-12));
+          camera.setRightDragHandler(null); // disable right click functionality
+          camera.setCenterDragHandler(null); // disable scroll wheel click functionality
+          camera.setWheelHandler(null); // disable scroll wheel zoom
+          camera.setResetOnDoubleClick(false); // disable reset on double click
+             
+          if (!rubiksCube.isSolved()) {
+            float prevTurnSpeed = rubiksCube.getTurnSpeed();
+            
+            // create a new cube with the same dimensions
+            switch(rubiksCube.getDimensions()) {
+              case 2: {
+                rubiksCube = new TwoDimCube();
+                break;
+              }
+              case 3: {
+                rubiksCube = new ThreeDimCube();
+                break;
+              }
+              case 4: {
+                rubiksCube = new FourDimCube();
+                break;
+              }
+            }
+            
+            rubiksCube.build();
+            rubiksCube.setTurnSpeed(prevTurnSpeed);
+          }
+        }
+        // solve button
+        else if (mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2))) {
+          if (!rubiksCube.isSolved() && !rubiksCube.isScrambling && !rubiksCube.isSolving)
+            rubiksCube.solve();
+        }
+      }
+      else if (mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2))) {
+        // 2x2 button
+        if (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) && mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2))) {
+          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 2) {
+            float prevTurnSpeed = rubiksCube.getTurnSpeed();
+            rubiksCube = new TwoDimCube();
+            rubiksCube.build();
+            rubiksCube.setTurnSpeed(prevTurnSpeed);
+          }
+        }
+        // 3x3 button
+        else if (mouseX < (MIDDLE_BTN + (BOT_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (BOT_BTN_WIDTH / 2))) {
+          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 3) {
+            float prevTurnSpeed = rubiksCube.getTurnSpeed();
+            rubiksCube = new ThreeDimCube();
+            rubiksCube.build();
+            rubiksCube.setTurnSpeed(prevTurnSpeed);
+          }
+        }
+        // 4x4 button
+        else if (mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) && mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2))) {
+          if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 4) {
+            float prevTurnSpeed = rubiksCube.getTurnSpeed();
+            rubiksCube = new FourDimCube();
+            rubiksCube.build();
+            rubiksCube.setTurnSpeed(prevTurnSpeed);
+          }
+        }
+      }
+      else if (mouseX > (LEFT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (LEFT_BTN_X + (SIDE_BTN_WIDTH / 2))) {
+        // 0.25x speed button
+        if (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
+          rubiksCube.setTurnSpeed(0.25);
+        }
+        // 0.5x speed button
+        else if (mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2))) {
+          rubiksCube.setTurnSpeed(0.5);
+        }
+        // 1x speed button
+        else if (mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
+          rubiksCube.setTurnSpeed(1);
+        }
+      }
+      else if (mouseX > (RIGHT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (RIGHT_BTN_X + (SIDE_BTN_WIDTH / 2))) {
+        // 2x speed button
+        if (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
+          rubiksCube.setTurnSpeed(2);
+        }
+        // 5x speed button
+        else if (mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2))) {
+          rubiksCube.setTurnSpeed(5);
+        }
+        // 10x speed button
+        else if (mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
+          rubiksCube.setTurnSpeed(10);
+        }
+      }
+    }
+  }
+}
+
 void mousePressed() {
   // supports left and right handed
   if (mouseButton == LEFT || mouseButton == RIGHT) {
-    if (mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2))) {
-      // scramble button
-      if (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-        if (!rubiksCube.isScrambling && !rubiksCube.isSolving)
-          rubiksCube.scramble();
-      }
-      // reset button
-      else if (mouseX < (MIDDLE_BTN + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (TOP_BTN_WIDTH / 2))) {
-        // reset camera
-        camera = new PeasyCam(this, 400);
-        camera.rotateX(radians(25));
-        camera.rotateY(radians(30));
-        camera.rotateZ(radians(-12));
-        camera.setRightDragHandler(null); // disable right click functionality
-        camera.setCenterDragHandler(null); // disable scroll wheel click functionality
-        camera.setWheelHandler(null); // disable scroll wheel zoom
-        camera.setResetOnDoubleClick(false); // disable reset on double click
-           
-        if (!rubiksCube.isSolved()) {
-          float prevTurnSpeed = rubiksCube.getTurnSpeed();
-          
-          // create a new cube with the same dimensions
-          switch(rubiksCube.getDimensions()) {
-            case 2: {
-              rubiksCube = new TwoDimCube();
-              break;
-            }
-            case 3: {
-              rubiksCube = new ThreeDimCube();
-              break;
-            }
-            case 4: {
-              rubiksCube = new FourDimCube();
-              break;
-            }
-          }
-          
-          rubiksCube.build();
-          rubiksCube.setTurnSpeed(prevTurnSpeed);
-        }
-      }
-      // solve button
-      else if (mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2))) {
-        if (!rubiksCube.isSolved() && !rubiksCube.isScrambling && !rubiksCube.isSolving)
-          rubiksCube.solve();
-      }
-    }
-    else if (mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2))) {
-      // 2x2 button
-      if (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) && mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2))) {
-        if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 2) {
-          float prevTurnSpeed = rubiksCube.getTurnSpeed();
-          rubiksCube = new TwoDimCube();
-          rubiksCube.build();
-          rubiksCube.setTurnSpeed(prevTurnSpeed);
-        }
-      }
-      // 3x3 button
-      else if (mouseX < (MIDDLE_BTN + (BOT_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (BOT_BTN_WIDTH / 2))) {
-        if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 3) {
-          float prevTurnSpeed = rubiksCube.getTurnSpeed();
-          rubiksCube = new ThreeDimCube();
-          rubiksCube.build();
-          rubiksCube.setTurnSpeed(prevTurnSpeed);
-        }
-      }
-      // 4x4 button
-      else if (mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) && mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2))) {
-        if (!rubiksCube.isScrambling && !rubiksCube.isSolving && rubiksCube.getDimensions() != 4) {
-          float prevTurnSpeed = rubiksCube.getTurnSpeed();
-          rubiksCube = new FourDimCube();
-          rubiksCube.build();
-          rubiksCube.setTurnSpeed(prevTurnSpeed);
-        }
-      }
-    }
-    else if (mouseX > (LEFT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (LEFT_BTN_X + (SIDE_BTN_WIDTH / 2))) {
-      // 0.25x speed button
-      if (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(0.25);
-      }
-      // 0.5x speed button
-      else if (mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(0.5);
-      }
-      // 1x speed button
-      else if (mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(1);
-      }
-    }
-    else if (mouseX > (RIGHT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (RIGHT_BTN_X + (SIDE_BTN_WIDTH / 2))) {
-      // 2x speed button
-      if (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(2);
-      }
-      // 5x speed button
-      else if (mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(5);
-      }
-      // 10x speed button
-      else if (mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2))) {
-        rubiksCube.setTurnSpeed(10);
-      }
-    }
-    else if (isCubeMoveable) { // edit the cube by clicking
+    if (isCubeMoveable) { // edit the cube by clicking
       if (!rubiksCube.isScrambling && !rubiksCube.isSolving) {
         // int[] because pass by reference DNE in Java
         // index 0 is the cell index and index 1 is the face index
