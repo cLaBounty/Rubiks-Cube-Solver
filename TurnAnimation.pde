@@ -25,7 +25,7 @@ class TurnAnimation {
     this.angle = 0;
   }
   
-  // custom constructor
+  // custom constructor for an algorithmic turn
   TurnAnimation(char notationBase, int dirValue) {
     this.notationBase = notationBase;
     this.dirValue = dirValue;

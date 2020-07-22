@@ -1,5 +1,5 @@
 abstract class Cube {
-  public final float CUBE_LENGTH = 144;
+  public final int CUBE_LENGTH = 144;
   protected int dim;
   protected float cellLength;
   protected Cell[] cells;
@@ -52,7 +52,7 @@ abstract class Cube {
     // calculate offset for displaying cells
     float cellOffset = ((dim - 1) * cellLength) / 2;
     
-    // create a new cell and track position using nested loop
+    // create a new cell and track its position using nested loop
     int index = 0;
     for (int x = 0; x < dim; x++) {
       for (int y = 0; y < dim; y++) {
@@ -232,9 +232,9 @@ abstract class Cube {
         if (f.checkIfClicked() && f.getCenterScrnPos().z < prevZPos) {
           retVal[0] = cellIndex;
           retVal[1] = faceIndex;
-          
           prevZPos = f.getCenterScrnPos().z;
         }
+        
         faceIndex++;
       }
       
@@ -245,11 +245,294 @@ abstract class Cube {
   }
   
   public void move(int startMouseX, int startMouseY, int clickedCellIndex, int clickedFaceIndex) {
+    //
     isBeingMoved = true;
     
     PVector clickedCellPos = new PVector(cells[clickedCellIndex].getCurrentX(), cells[clickedCellIndex].getCurrentY(), cells[clickedCellIndex].getCurrentZ());
     PVector clickedFaceDir = cells[clickedCellIndex].getColoredFace(clickedFaceIndex).getCurrentDir();
-
     currentTurn = new ControlledTurn(startMouseX, startMouseY, clickedCellPos, clickedFaceDir);
+  }
+  
+  // common method to solve the corners of each cube
+  protected void solveCorner() {
+    // getting the buffer cell's index in the array of all cells
+    int bufferIndex = -1;
+
+    for (int i = 0; i < cells.length; i++) {
+      if (cells[i].getCurrentX() == 0 && cells[i].getCurrentY() == 0 && cells[i].getCurrentZ() == 0) {
+        bufferIndex = i;
+        break;
+      }
+    }
+    
+    // getting the up, left, and back face color of the buffer cell
+    color bufferUpColor = #FFFFFF;
+    color bufferLeftColor = #FFFFFF;
+    color bufferBackColor = #FFFFFF;
+    
+    for (Face f : cells[bufferIndex].getColoredFaces()) {
+      if (f.getCurrentDir().y == -1) // up face
+        bufferUpColor = f.col;
+      else if (f.getCurrentDir().x == -1) // left face
+        bufferLeftColor = f.col;
+      else if (f.getCurrentDir().z == -1) // back face
+        bufferBackColor = f.col;
+    }
+    
+    // find where the buffer needs to go
+    int swapCellX = -1;
+    int swapCellY = -1;
+    int swapCellZ = -1;
+
+    if (bufferUpColor == #FF8D1A || bufferLeftColor == #FF8D1A || bufferBackColor == #FF8D1A)
+      swapCellX = 0;
+    else if (bufferUpColor == #FF0000 || bufferLeftColor == #FF0000 || bufferBackColor == #FF0000)
+      swapCellX = dim - 1;
+    
+    if (bufferUpColor == #FFFFFF || bufferLeftColor == #FFFFFF || bufferBackColor == #FFFFFF)
+      swapCellY = 0;
+    else if (bufferUpColor == #FFFF00 || bufferLeftColor == #FFFF00 || bufferBackColor == #FFFF00)
+      swapCellY = dim - 1;
+    
+    if (bufferUpColor == #0000FF || bufferLeftColor == #0000FF || bufferBackColor == #0000FF)
+      swapCellZ = 0;
+    else if (bufferUpColor == #00FF00 || bufferLeftColor == #00FF00 || bufferBackColor == #00FF00)
+      swapCellZ = dim - 1;
+    
+    // find the direction that the buffer needs to be
+    PVector swapCellDir;
+    
+    if (bufferLeftColor == #FF8D1A)
+      swapCellDir = new PVector(-1, 0, 0);
+    else if (bufferLeftColor == #FF0000)
+       swapCellDir = new PVector(1, 0, 0);
+    else if (bufferLeftColor == #FFFFFF)
+      swapCellDir = new PVector(0, -1, 0);
+    else if (bufferLeftColor == #FFFF00)
+      swapCellDir = new PVector(0, 1, 0);
+    else if (bufferLeftColor == #0000FF)
+      swapCellDir = new PVector(0, 0, -1);
+    else // #00FF00
+      swapCellDir = new PVector(0, 0, 1);
+    
+    // get the setup moves for that specific face
+    ArrayList<TurnAnimation> setUpSequence = getCornerSetupMoves(swapCellX, swapCellY, swapCellZ, swapCellDir);
+
+    // reversed setup moves to put back in it's original place
+    ArrayList<TurnAnimation> reverseSetUpSequence = new ArrayList<TurnAnimation>();
+    
+    for (int i = setUpSequence.size() - 1; i >= 0; i--) {
+      char notationBase = setUpSequence.get(i).getNotationBase();
+      int invertedDirValue = setUpSequence.get(i).getDirValue() * -1;
+      reverseSetUpSequence.add(new TurnAnimation(notationBase, invertedDirValue));
+    }
+
+    // add all turns to the solve sequence
+    solveTurnSequence.addAll(setUpSequence);
+    addModYPermAlgorithm();
+    solveTurnSequence.addAll(reverseSetUpSequence);
+  }
+  
+  // common method to get the setup move for the corners of each cube
+  private ArrayList<TurnAnimation> getCornerSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
+    ArrayList<TurnAnimation> setUpSequence = new ArrayList<TurnAnimation>();
+    
+    // rare case when the swap cell is also the buffer
+    boolean isBuffer;
+    
+    do {
+      isBuffer = false;
+      
+      if (swapCellDir.y == -1) {
+        if (swapCellZ == 0) {
+          if (swapCellX == 0) { // A face
+            isBuffer = true;
+          }
+          else if (swapCellX == dim - 1) { // B face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+          }
+        }
+        else if (swapCellZ == dim - 1) {
+          if (swapCellX == dim - 1) { // C face           
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+          }
+          else if (swapCellX == 0) { // D face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+        }
+      }
+      else if (swapCellDir.x == -1) {
+        if (swapCellY == 0) {
+          if (swapCellZ == 0) { // E face
+            isBuffer = true;
+          }
+          else if (swapCellZ == dim - 1) { // F face
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+          }
+        }
+        else if (swapCellY == dim - 1) {
+          if (swapCellZ == dim - 1) { // G face
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+          }
+          else if (swapCellZ == 0) { // H face
+            setUpSequence.add(new TurnAnimation('D', 1)); // D'
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+          }
+        }      
+      }
+      else if (swapCellDir.z == 1) {
+        if (swapCellY == 0) {
+          if (swapCellX == 0) { // I face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+          else if (swapCellX == dim - 1) { // J face
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+        }
+        else if (swapCellY == dim - 1) {
+          if (swapCellX == dim - 1) { // K face
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+          else if (swapCellX == 0) { // L face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+          }
+        }
+      }
+      else if (swapCellDir.x == 1) {
+        if (swapCellY == 0) {
+          if (swapCellZ == dim - 1) { // M face
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+          else if (swapCellZ == 0) { // N face
+            setUpSequence.add(new TurnAnimation('R', -1)); // R'
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+        }
+        else if (swapCellY == dim - 1) {
+          if (swapCellZ == 0) { // O face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+          else if (swapCellZ == dim - 1) { // P face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('F', 1)); // F
+          }
+        }
+      }
+      else if (swapCellDir.z == -1) {
+        if (swapCellY == 0) {
+          if (swapCellX == dim - 1) { // Q face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+            setUpSequence.add(new TurnAnimation('D', 1)); // D'
+          }
+          else if (swapCellX == 0) { // R face
+            isBuffer = true;
+          }
+        }
+        else if (swapCellY == dim - 1) {
+          if (swapCellX == 0) { // S face
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+            setUpSequence.add(new TurnAnimation('F', -1)); // F'
+          }
+          else if (swapCellX == dim - 1) { // T face
+            setUpSequence.add(new TurnAnimation('R', 1)); // R
+          }
+        }
+      }
+      else { // swapCellDir.y == 1
+        if (swapCellX == 0 && swapCellZ == dim - 1) { // U face
+          setUpSequence.add(new TurnAnimation('D', -1)); // D
+        }
+        else if (swapCellZ == 0) {
+          if (swapCellX == dim - 1) { // W face
+            setUpSequence.add(new TurnAnimation('D', 1)); // D'
+          }
+          else if (swapCellX == 0) { // X face
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+            setUpSequence.add(new TurnAnimation('D', -1)); // D
+          }
+        }
+      }
+      
+      // if the swap cell is the buffer, then pick any unsolved or flipped piece
+      if (isBuffer) {
+        for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
+          // only check the corner pieces
+          if (cells[i].getColoredFaces().size() == 3) {
+            // if the cell is in the incorrect position or flipped
+            if (!cells[i].isSolved()) {
+              swapCellX = cells[i].getCurrentX();
+              swapCellY = cells[i].getCurrentY();
+              swapCellZ = cells[i].getCurrentZ();
+              
+              swapCellDir.x = cells[i].getColoredFace(0).getCurrentDir().x;
+              swapCellDir.y = cells[i].getColoredFace(0).getCurrentDir().y;
+              swapCellDir.z = cells[i].getColoredFace(0).getCurrentDir().z;
+              
+              break;
+            }
+          }
+        }
+      }
+    } while (isBuffer);
+    
+    return setUpSequence;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  // common swapping algorithm for solving corners
+  protected void addModYPermAlgorithm() {
+    // Modified Y Perm Algorithm
+    final TurnAnimation[] ALGORITHM = {
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', -1), // F'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', 1), // F
+      new TurnAnimation('R', 1) // R
+    };
+    
+    solveTurnSequence.addAll(Arrays.asList(ALGORITHM));
   }
 }

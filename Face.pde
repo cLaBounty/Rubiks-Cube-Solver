@@ -46,7 +46,7 @@ class Face {
     float botLeftScrnXPos = screenX(len/2, len/2);
     float botLeftScrnYPos = screenY(len/2, len/2);
     
-    // updating the center point's position
+    // updating the position of the center point
     centerScrnPos.x = screenX(0, 0);
     centerScrnPos.y = screenY(0, 0);
     centerScrnPos.z = screenZ(0, 0, 0);

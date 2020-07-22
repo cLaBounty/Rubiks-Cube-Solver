@@ -21,6 +21,7 @@ final int FOUR_BY_FOUR_X = MIDDLE_BTN + BOT_BTN_WIDTH + BOT_BTN_GAP;
 final int TOP_SIDE_BTN_Y = MIDDLE_BTN - BTN_HEIGHT - SIDE_BTN_GAP;
 final int BOT_SIDE_BTN_Y = MIDDLE_BTN + BTN_HEIGHT + SIDE_BTN_GAP;
 
+
 // mouse-driven camera for Processing
 PeasyCam camera;
 
@@ -31,7 +32,6 @@ boolean isCubeMoveable;
 void setup() {
   // window size and 3D renderer
   size(600, 600, P3D);
-  //fullScreen(P3D);
   
   // 4x anti-aliasing
   smooth(4);
@@ -107,12 +107,12 @@ void draw() {
   
   // left side buttons
   rect(LEFT_BTN_X, TOP_SIDE_BTN_Y, SIDE_BTN_WIDTH, BTN_HEIGHT);
-  rect(LEFT_BTN_X, MIDDLE_BTN, SIDE_BTN_WIDTH, BTN_HEIGHT);
+  rect(LEFT_BTN_X, 300, SIDE_BTN_WIDTH, BTN_HEIGHT);
   rect(LEFT_BTN_X, BOT_SIDE_BTN_Y, SIDE_BTN_WIDTH, BTN_HEIGHT);
   
   // right side buttons
   rect(RIGHT_BTN_X, TOP_SIDE_BTN_Y, SIDE_BTN_WIDTH, BTN_HEIGHT);
-  rect(RIGHT_BTN_X, MIDDLE_BTN, SIDE_BTN_WIDTH, BTN_HEIGHT);
+  rect(RIGHT_BTN_X, 300, SIDE_BTN_WIDTH, BTN_HEIGHT);
   rect(RIGHT_BTN_X, BOT_SIDE_BTN_Y, SIDE_BTN_WIDTH, BTN_HEIGHT);
   
   fill(0);
@@ -133,50 +133,51 @@ void draw() {
   // left side button text
   textSize(23);
   text("0.25x", LEFT_BTN_X, TOP_SIDE_BTN_Y);
-  text("0.5x", LEFT_BTN_X, MIDDLE_BTN);
+  text("0.5x", LEFT_BTN_X, 300);
   textSize(25);
   text("1x", LEFT_BTN_X, BOT_SIDE_BTN_Y);
   
   // right side button text
   textSize(26);
   text("2x", RIGHT_BTN_X, TOP_SIDE_BTN_Y);
-  text("5x", RIGHT_BTN_X, MIDDLE_BTN);
+  text("5x", RIGHT_BTN_X, 300);
   text("10x", RIGHT_BTN_X, BOT_SIDE_BTN_Y);
   camera.endHUD();
 }
 
 boolean checkButtonHover() {
-  // check if the mouse if hovering over any of the buttons
-  if ((mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2)) &&
-      (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2)) ||
-       mouseX < (MIDDLE_BTN + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (TOP_BTN_WIDTH / 2)) ||
-       mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2)))) ||
-       
-      (mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2)) &&
-      (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) && mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2)) ||
-       mouseX < (MIDDLE_BTN + (BOT_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (BOT_BTN_WIDTH / 2)) ||
-       mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) && mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2)))) ||
-       
-      (mouseX > (LEFT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (LEFT_BTN_X + (SIDE_BTN_WIDTH / 2)) &&
-      (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2)) ||
-       mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2)) ||
-       mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2)))) ||
-       
-      (mouseX > (RIGHT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (RIGHT_BTN_X + (SIDE_BTN_WIDTH / 2)) &&
-      (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2)) ||
-       mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2)) ||
-       mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2)))))
-      {
-        return true;
-      }
+  // check if the mouse if hovering over ANY of the buttons
+  if (
+    // top buttons
+    (mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2)) &&
+    (mouseX < (SCRAMBLE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SCRAMBLE_BTN_X - (TOP_BTN_WIDTH / 2)) ||
+     mouseX < (MIDDLE_BTN + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (TOP_BTN_WIDTH / 2)) ||
+     mouseX < (SOLVE_BTN_X + (TOP_BTN_WIDTH / 2)) && mouseX > (SOLVE_BTN_X - (TOP_BTN_WIDTH / 2)))) ||
+    // bottom buttons
+    (mouseY < (BOT_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (BOT_BTN_Y - (BTN_HEIGHT / 2)) &&
+    (mouseX < (TWO_BY_TWO_X + (BOT_BTN_WIDTH / 2)) && mouseX > (TWO_BY_TWO_X - (BOT_BTN_WIDTH / 2)) ||
+     mouseX < (MIDDLE_BTN + (BOT_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (BOT_BTN_WIDTH / 2)) ||
+     mouseX < (FOUR_BY_FOUR_X + (BOT_BTN_WIDTH / 2)) && mouseX > (FOUR_BY_FOUR_X - (BOT_BTN_WIDTH / 2)))) ||
+    // left buttons
+    (mouseX > (LEFT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (LEFT_BTN_X + (SIDE_BTN_WIDTH / 2)) &&
+    (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2)) ||
+     mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2)) ||
+     mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2)))) ||
+    // right buttons
+    (mouseX > (RIGHT_BTN_X - (SIDE_BTN_WIDTH / 2)) && mouseX < (RIGHT_BTN_X + (SIDE_BTN_WIDTH / 2)) &&
+    (mouseY > (TOP_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (TOP_SIDE_BTN_Y + (BTN_HEIGHT / 2)) ||
+     mouseY > (MIDDLE_BTN - (BTN_HEIGHT / 2)) && mouseY < (MIDDLE_BTN + (BTN_HEIGHT / 2)) ||
+     mouseY > (BOT_SIDE_BTN_Y - (BTN_HEIGHT / 2)) && mouseY < (BOT_SIDE_BTN_Y + (BTN_HEIGHT / 2)))))
+    {
+      return true;
+    }
   
   return false;
 }
 
 void mouseClicked() {
-  // supports left and right handed
-  if (mouseButton == LEFT || mouseButton == RIGHT) {
-    // when the camera is not active
+  if (mouseButton == LEFT) {
+    // only allow button clicks when the camera is not active
     if (!keyPressed || keyCode != CONTROL) {
       if (mouseY < (TOP_BTN_Y + (BTN_HEIGHT / 2)) && mouseY > (TOP_BTN_Y - (BTN_HEIGHT / 2))) {
         // scramble button
@@ -186,7 +187,7 @@ void mouseClicked() {
         }
         // reset button
         else if (mouseX < (MIDDLE_BTN + (TOP_BTN_WIDTH / 2)) && mouseX > (MIDDLE_BTN - (TOP_BTN_WIDTH / 2))) {
-          // reset camera
+          // reset camera by creating a new instnace
           camera = new PeasyCam(this, 400);
           camera.rotateX(radians(25));
           camera.rotateY(radians(30));
@@ -287,8 +288,7 @@ void mouseClicked() {
 }
 
 void mousePressed() {
-  // supports left and right handed
-  if (mouseButton == LEFT || mouseButton == RIGHT) {
+  if (mouseButton == LEFT) {
     if (isCubeMoveable) { // edit the cube by clicking
       if (!rubiksCube.isScrambling && !rubiksCube.isSolving) {
         // int[] because pass by reference DNE in Java
@@ -302,17 +302,19 @@ void mousePressed() {
 }
 
 void mouseReleased() {
-  if (isCubeMoveable && !rubiksCube.isScrambling && !rubiksCube.isSolving) {
-    if (rubiksCube.getCurrentTurn().getAngle() > QUARTER_PI) {
-      rubiksCube.getCurrentTurn().setAngle(HALF_PI);
-    }
-    else if (rubiksCube.getCurrentTurn().angle < -QUARTER_PI) {
-      rubiksCube.getCurrentTurn().setAngle(-HALF_PI);
-    }
-    else {
-      rubiksCube.getCurrentTurn().setAngle(0);
-      rubiksCube.isBeingMoved = false;
-      rubiksCube.isTurning = false;
+  if (mouseButton == LEFT) {
+    if (isCubeMoveable && !rubiksCube.isScrambling && !rubiksCube.isSolving) {
+      if (rubiksCube.getCurrentTurn().getAngle() > QUARTER_PI) {
+        rubiksCube.getCurrentTurn().setAngle(HALF_PI);
+      }
+      else if (rubiksCube.getCurrentTurn().angle < -QUARTER_PI) {
+        rubiksCube.getCurrentTurn().setAngle(-HALF_PI);
+      }
+      else {
+        rubiksCube.getCurrentTurn().setAngle(0);
+        rubiksCube.isBeingMoved = false;
+        rubiksCube.isTurning = false;
+      }
     }
   }
 }
