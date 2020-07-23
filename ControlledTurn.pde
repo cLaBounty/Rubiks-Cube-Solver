@@ -17,16 +17,13 @@ class ControlledTurn extends TurnAnimation {
     this.yMouseTurn = false;
   }
   
+  // override the update function for a algorithmic turn
   @Override
   public void update() {
     if (abs(angle) < HALF_PI) {
-      // get the current status of the camera to determine the direction the mouse needs to move
-      float[] cameraPos = camera.getPosition();
-      float[] cameraRot = camera.getRotations();
-      
-      // if the angle gets close to 0, then the turn can change directions
+      // if the mouse gets close to the starting point, then the turn can change directions
       float distToStart = dist(mouseX, mouseY, startMouseX, startMouseY);
-      if (abs(angle) < 0.15 && distToStart > 10 && distToStart < rubiksCube.getCellLength()) {
+      if (distToStart > 10 && distToStart < rubiksCube.getCellLength()/2) {
         // reset the turn
         this.sameXPos = -1; // invalid X position
         this.sameYPos = -1; // invalid Y position
@@ -41,14 +38,20 @@ class ControlledTurn extends TurnAnimation {
           }
           else { // if the mouse is further in the Y direction
             yMouseTurn = true;
-            this.sameZPos = (int)clickedCellPos.z;  // turn all with the same Z
+            this.sameZPos = (int)clickedCellPos.z; // turn all with the same Z
             
-            // if the face is on the left side, then invert the range
-            if (cameraPos[0] > -100)
+            // if the face is on the right side of the cube, then invert the range
+            if (clickedFaceDir.x == 1)
               targetRange *= -1;
           }
         }
         else if (clickedFaceDir.y == -1) { // face on the top is clicked
+          // NOTE: Bottom faces cannot be clicked because the directions of the mouse will not be correct
+          
+          // get the status of the camera to determine the direction the mouse needs to move
+          float[] cameraPos = camera.getPosition();
+          float[] cameraRot = camera.getRotations();
+          
           // if the mouse is further in the X direction
           if (abs(startMouseX - mouseX) > abs(startMouseY - mouseY)) {
             // NOTE: The displacement of the cells in the X and Z column change based on the position of the cube
@@ -98,22 +101,21 @@ class ControlledTurn extends TurnAnimation {
             this.sameXPos = (int)clickedCellPos.x; // turn all with the same X
             
             // if the face is on the back side, then invert the range
-            if (cameraPos[2] < -100)
+            if (clickedFaceDir.z == -1)
               targetRange *= -1;
           }
         }
       }
       
-      // change the angle based on the direction and distance from the starting point
+      // map the angle based to the distance from the starting point in the X or Y direction
       if (yMouseTurn) // map to the mouse's Y coordinates
         angle = map(mouseY, startMouseY + rubiksCube.CUBE_LENGTH, startMouseY - rubiksCube.CUBE_LENGTH, -targetRange, targetRange);
       else // map to the mouse's X coordinates
         angle = map(mouseX, startMouseX + rubiksCube.CUBE_LENGTH, startMouseX - rubiksCube.CUBE_LENGTH, -targetRange, targetRange);
     }
-    else { // if animation is done, then make chages to cube and stop animation
+    else { // if animation is done, then make chages to cube and stop turning
       rubiksCube.isBeingMoved = false;
       
-      // set the direction based on the angle the user chose
       if (angle > 0)
         dirValue =  1;
       else

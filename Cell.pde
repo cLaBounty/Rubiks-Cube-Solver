@@ -61,13 +61,13 @@ class Cell {
   public void show() {
     noFill();
     stroke(0);
-    strokeWeight(7 * (len / 48)); // calculated based on size of each cell
+    strokeWeight(7 * (len / 48)); // calculated based on size of the cell
     
     pushMatrix();
     applyMatrix(matrix);
     box(len);
     
-    // display each inner and colored face of the cell
+    // display each inner and colored face
     for (Face f : innerFaces)
       f.show();
     
@@ -95,16 +95,18 @@ class Cell {
       f.turn(fixedAxis, dirValue);
   }
   
+  // when the faces of the cell are not in the solved direction
   public boolean isWrongDirection() {
-    if (coloredFaces.get(0).getCurrentDir().x == coloredFaces.get(0).getInitialDir().x && coloredFaces.get(0).getCurrentDir().y == coloredFaces.get(0).getInitialDir().y)
+    if (coloredFaces.get(0).getCurrentDir().x == coloredFaces.get(0).getSolvedDir().x && coloredFaces.get(0).getCurrentDir().y == coloredFaces.get(0).getSolvedDir().y)
       return false;
     
     return true;
   }
   
+  // when the faces of the cell are pointing in the opposite direction as when solved
   public boolean isOppositeDirection() {
     for (Face f : coloredFaces) {
-      if (f.getCurrentDir().x != -1 * f.getInitialDir().x || f.getCurrentDir().y != -1 * f.getInitialDir().y || f.getCurrentDir().z != -1 * f.getInitialDir().z)
+      if (f.getCurrentDir().x != -1 * f.getSolvedDir().x || f.getCurrentDir().y != -1 * f.getSolvedDir().y || f.getCurrentDir().z != -1 * f.getSolvedDir().z)
         return false;
     }
     

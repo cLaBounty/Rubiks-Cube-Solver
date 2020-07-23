@@ -1,5 +1,5 @@
 class Face {
-  private PVector initialDir;
+  private PVector solvedDir;
   private PVector currentDir;
   private color col;
   private float len;
@@ -8,19 +8,17 @@ class Face {
   private PVector centerScrnPos;
   
   // getters
-  public PVector getInitialDir() { return initialDir; }
+  public PVector getSolvedDir() { return solvedDir; }
   public PVector getCurrentDir() { return currentDir; }
   public color getColor() { return col; }
   public PVector getCenterScrnPos() { return centerScrnPos; }
   
   // custom constructor
   Face(PVector dir, color col, float len) {
-    this.initialDir = this.currentDir = dir;
+    this.solvedDir = this.currentDir = dir;
     this.col = col;
-    this.len = len;
-    trueXLength = len;
-    trueYLength = len;
-    centerScrnPos = new PVector();
+    this.len = this.trueXLength = this.trueYLength = len;
+    this.centerScrnPos = new PVector();
   }
   
   // member functions
@@ -28,7 +26,6 @@ class Face {
     pushMatrix();
     fill(col);
     noStroke();
-    
     translate((currentDir.x / 2) * len, (currentDir.y / 2) * len, (currentDir.z / 2) * len);
     
     // rotate face relative to the direction
