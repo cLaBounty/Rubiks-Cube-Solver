@@ -16,10 +16,10 @@ abstract class Cube {
   protected ArrayList<TurnAnimation> solveTurnSequence;
   
   // current state of the cube
-  public boolean isBeingMoved;
   public boolean isTurning;
   public boolean isScrambling;
   public boolean isSolving;
+  public boolean isBeingMoved;
   
   // abstract methods for different dimension cubes
   abstract public void solve();
@@ -41,18 +41,18 @@ abstract class Cube {
     this.turnSpeed = 1;
     this.turnCount = 0;
     this.solveTurnSequence = new ArrayList<TurnAnimation>();
-    this.isBeingMoved = false;
     this.isTurning = false;
     this.isScrambling = false;
     this.isSolving = false;
+    this.isBeingMoved = false;
   }
   
   // member functions
   public void build() {
-    // calculate offset for displaying cells
+    //  offset for where the cells are displayed
     float cellOffset = ((dim - 1) * cellLength) / 2;
     
-    // create a new cell and track its position using nested loop
+    // create a new cell and track its position using a nested loop
     int index = 0;
     for (int x = 0; x < dim; x++) {
       for (int y = 0; y < dim; y++) {
@@ -70,15 +70,14 @@ abstract class Cube {
   public void show() {
     for (Cell c : cells) {
       push();
-      if (c.getCurrentX() == currentTurn.getSameXPos()) {
+      
+      // rotate cells that have the same position as the axis that is being turned
+      if (c.getCurrentX() == currentTurn.getSameXPos())
         rotateX(currentTurn.getAngle());
-      }
-      else if (c.getCurrentY() == currentTurn.getSameYPos()) {
+      else if (c.getCurrentY() == currentTurn.getSameYPos())
         rotateY(-currentTurn.getAngle());
-      }
-      else if (c.getCurrentZ() == currentTurn.getSameZPos()) {
+      else if (c.getCurrentZ() == currentTurn.getSameZPos())
         rotateZ(currentTurn.getAngle());
-      }
       
       c.show();
       pop();
@@ -86,14 +85,13 @@ abstract class Cube {
   }
   
   public void update() {
-    // if the turns are automated
     if (isSolving || isScrambling) {
-      // if cube is in the middle of a turn
+      // if cube is in the middle of a turn, then keep updating the angle
       if (isTurning) {
         currentTurn.update();
       }
       else {
-        // if cube is scrambling and has not reached the set amount of turns
+        // when scrambling, get a random turn until the limit is reached
         if (isScrambling && turnCount < scrambleTurnNum) {
           currentTurn = getRandomTurn();
           currentTurn.start();
@@ -115,15 +113,15 @@ abstract class Cube {
         }
       }
     }
-    else if (isBeingMoved) { // user is moving the cube
+    else if (isBeingMoved) { // the user is moving the cube
       currentTurn.update();
     }
   }
   
   protected boolean isSolved() {
-    // if any cell is not in it's solved location, then the cube is not solved
+    // if any cell is not solved, then the cube is not solved
     for (Cell c : cells) {
-      if (c.getColoredFaces().size() > 0) { // disregard the cell in the middle of the cube
+      if (c.getColoredFaces().size() > 0) { // disregard the cell(s) in the middle of the cube
         if (!c.isSolved())
           return false;
       }
@@ -158,12 +156,12 @@ abstract class Cube {
   
   public void turn() {
     // check each turn posibility
-    for (int i = 0; i < turnXBases.length; i++) {
-      // check if X turn and if so, which one
+    for (int i = 0; i < dim; i++) {
+      // check if X turn and if so, which one is it
       if (i == currentTurn.getSameXPos()) {
         // loop through all cells to find all on the side being changed
         for (Cell c : cells) {
-          // turn all cells on specific side
+          // turn all cells on the specific side
           if (c.getCurrentX() == i) {
             float x = (c.getCurrentX() - 1) + turnOffset;
             float y = (c.getCurrentY() - 1) + turnOffset;
@@ -177,13 +175,13 @@ abstract class Cube {
             c.turnFaces('X', currentTurn.getDirValue());
           }
         }
+        
         return; // no need to search further
       }
-      // check if Y turn and if so, which one
-      else if (i == currentTurn.getSameYPos()) {
+      else if (i == currentTurn.getSameYPos()) { // check if Y turn and if so, which one is it
         // loop through all cells to find all on the side being changed
         for (Cell c : cells) {
-          // turn all cells on specific side
+          // turn all cells on the specific side
           if (c.getCurrentY() == i) {
             float x = (c.getCurrentX() - 1) + turnOffset;
             float y = (c.getCurrentY() - 1) + turnOffset;
@@ -197,12 +195,13 @@ abstract class Cube {
             c.turnFaces('Y', currentTurn.getDirValue());
           }
         }
+        
         return; // no need to search further
-      } // check if Z turn and if so, which one
-      else if (i == currentTurn.getSameZPos()) {
+      }
+      else if (i == currentTurn.getSameZPos()) { // check if Z turn and if so, which one is it
         // loop through all cells to find all on the side being changed
         for (Cell c : cells) {
-          // turn all cells on specific side
+          // turn all cells on the specific side
           if (c.getCurrentZ() == i) {
             float x = (c.getCurrentX() - 1) + turnOffset;
             float y = (c.getCurrentY() - 1) + turnOffset;
@@ -216,19 +215,23 @@ abstract class Cube {
             c.turnFaces('Z', currentTurn.getDirValue());
           }
         }
+        
         return; // no need to search further
       }
     }
   }
   
+  // determine if the face of any cell on the cube was clicked
   private int[] getClickedCellandFace() {
     int[] retVal = new int[] {-1, -1};
     float prevZPos = 100;
     
+    // loop through all cells
     int cellIndex = 0;
     for (Cell c : cells) {
       int faceIndex = 0;
       for (Face f : c.getColoredFaces()) {
+        // if the face was clicked and if it is closer to the screen
         if (f.checkIfClicked() && f.getCenterScrnPos().z < prevZPos) {
           retVal[0] = cellIndex;
           retVal[1] = faceIndex;
@@ -244,8 +247,8 @@ abstract class Cube {
     return retVal;
   }
   
+  // when the user begins to manually move the cube
   public void move(int startMouseX, int startMouseY, int clickedCellIndex, int clickedFaceIndex) {
-    //
     isBeingMoved = true;
     
     PVector clickedCellPos = new PVector(cells[clickedCellIndex].getCurrentX(), cells[clickedCellIndex].getCurrentY(), cells[clickedCellIndex].getCurrentZ());
@@ -253,11 +256,35 @@ abstract class Cube {
     currentTurn = new ControlledTurn(startMouseX, startMouseY, clickedCellPos, clickedFaceDir);
   }
   
+  // common swapping algorithm for solving corners
+  protected void addModYPermAlgorithm() {
+    // Modified Y Perm Algorithm
+    final TurnAnimation[] ALGORITHM = {
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', -1), // F'
+      new TurnAnimation('R', 1), // R
+      new TurnAnimation('U', 1), // U
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('U', -1), // U'
+      new TurnAnimation('R', -1), // R'
+      new TurnAnimation('F', 1), // F
+      new TurnAnimation('R', 1) // R
+    };
+    
+    solveTurnSequence.addAll(Arrays.asList(ALGORITHM));
+  }
+  
   // common method to solve the corners of each cube
   protected void solveCorner() {
     // getting the buffer cell's index in the array of all cells
     int bufferIndex = -1;
-
+    
     for (int i = 0; i < cells.length; i++) {
       if (cells[i].getCurrentX() == 0 && cells[i].getCurrentY() == 0 && cells[i].getCurrentZ() == 0) {
         bufferIndex = i;
@@ -283,7 +310,7 @@ abstract class Cube {
     int swapCellX = -1;
     int swapCellY = -1;
     int swapCellZ = -1;
-
+    
     if (bufferUpColor == #FF8D1A || bufferLeftColor == #FF8D1A || bufferBackColor == #FF8D1A)
       swapCellX = 0;
     else if (bufferUpColor == #FF0000 || bufferLeftColor == #FF0000 || bufferBackColor == #FF0000)
@@ -318,7 +345,7 @@ abstract class Cube {
     // get the setup moves for that specific face
     ArrayList<TurnAnimation> setUpSequence = getCornerSetupMoves(swapCellX, swapCellY, swapCellZ, swapCellDir);
 
-    // reversed setup moves to put back in it's original place
+    // reverse the setup moves to put it back in it's original position
     ArrayList<TurnAnimation> reverseSetUpSequence = new ArrayList<TurnAnimation>();
     
     for (int i = setUpSequence.size() - 1; i >= 0; i--) {
@@ -333,7 +360,7 @@ abstract class Cube {
     solveTurnSequence.addAll(reverseSetUpSequence);
   }
   
-  // common method to get the setup move for the corners of each cube
+  // common method to get the setup moves for the corners of each cube
   private ArrayList<TurnAnimation> getCornerSetupMoves(int swapCellX, int swapCellY, int swapCellZ, PVector swapCellDir) {
     ArrayList<TurnAnimation> setUpSequence = new ArrayList<TurnAnimation>();
     
@@ -464,12 +491,12 @@ abstract class Cube {
         }
       }
       
-      // if the swap cell is the buffer, then pick any unsolved or flipped piece
+      // if the swap cell is the buffer, then pick any unsolved piece
       if (isBuffer) {
         for (int i = 1; i < cells.length; i++) { // cannot swap with buffer again at index 0
           // only check the corner pieces
           if (cells[i].getColoredFaces().size() == 3) {
-            // if the cell is in the incorrect position or flipped
+            // if the cell is unsolved
             if (!cells[i].isSolved()) {
               swapCellX = cells[i].getCurrentX();
               swapCellY = cells[i].getCurrentY();
@@ -487,52 +514,5 @@ abstract class Cube {
     } while (isBuffer);
     
     return setUpSequence;
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  // common swapping algorithm for solving corners
-  protected void addModYPermAlgorithm() {
-    // Modified Y Perm Algorithm
-    final TurnAnimation[] ALGORITHM = {
-      new TurnAnimation('R', 1), // R
-      new TurnAnimation('U', -1), // U'
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('U', -1), // U'
-      new TurnAnimation('R', 1), // R
-      new TurnAnimation('U', 1), // U
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('F', -1), // F'
-      new TurnAnimation('R', 1), // R
-      new TurnAnimation('U', 1), // U
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('U', -1), // U'
-      new TurnAnimation('R', -1), // R'
-      new TurnAnimation('F', 1), // F
-      new TurnAnimation('R', 1) // R
-    };
-    
-    solveTurnSequence.addAll(Arrays.asList(ALGORITHM));
   }
 }

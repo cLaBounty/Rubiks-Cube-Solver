@@ -24,6 +24,7 @@ class TwoDimCube extends Cube {
   }
   
   protected void setNextTurns() {
+    // solve one cell at a time until the cube is solved
     if (!isSolved())
       solveCorner();
     else

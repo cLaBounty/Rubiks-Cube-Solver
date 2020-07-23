@@ -31,7 +31,7 @@ class TurnAnimation {
     this.dirValue = dirValue;
     this.angle = 0;
     
-    // get the X, Y, or Z that is fixed
+    // determine which axis of the turn is fixed
     for (int i = 0; i < rubiksCube.getDimensions(); i++) {
       if (rubiksCube.getTurnXBase(i) == notationBase) {
         this.sameXPos = i;
@@ -60,13 +60,14 @@ class TurnAnimation {
   }
   
   public void update() {
+    // increase the angle gradually until it reaches a full turn
     if (abs(angle) < HALF_PI) {
       if (rubiksCube.isScrambling)
         angle += dirValue * 0.35;
       else if (rubiksCube.isSolving)
         angle += dirValue * 0.055 * rubiksCube.getTurnSpeed();
     }
-    else { // if animation is done, then make chages to cube and stop animation
+    else { // if animation is done, then make chages to cube and stop turning
       angle = 0;
       rubiksCube.turn();
       rubiksCube.isTurning = false;
