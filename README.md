@@ -2,7 +2,7 @@
 
 ### [Demo](https://www.youtube.com/watch?v=oZSwaQ6uV1U) | [Download](https://clabounty.itch.io/rubiks-cube-solver)
 
-## Brief Summary
+## Summary
 A 3D Rubik's Cube simulation capable of solving a 2x2, 3x3, and 4x4 cube using a popular blindfolded solving method. Users can also manually edit the cube by clicking a face and dragging the mouse in the direction that they want the turn to go.
 
 ## The Solving Method
