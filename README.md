@@ -14,6 +14,6 @@ The blindfolded method that I chose to implement starts by solving all of the ce
 ## What I Learned
 - Built-in Processing Classes, Functions, and Variables
 - 2D and 3D Matrix Transformations
-- 3D Vector Directions
+- 3D Unit Vector Directions
 - Java Syntax and Keywords
 - OOP Concepts in Java
