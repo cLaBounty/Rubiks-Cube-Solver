@@ -1,5 +1,5 @@
 class TwoDimCube extends Cube {
-  // custom constructor
+  
   TwoDimCube() {
     super();
     
@@ -14,20 +14,21 @@ class TwoDimCube extends Cube {
     turnZBases = new char[]{'B', 'F'};
   }
   
-  // member functions
+  public TwoDimCube newInstance() {
+    return new TwoDimCube();
+  }
+  
   public void solve() {
     isSolving = true;
-        
-    // reset the solve sequence
     solveTurnSequence.removeAll(solveTurnSequence);
     turnCount = 0;
   }
   
   protected void setNextTurns() {
-    // solve one cell at a time until the cube is solved
-    if (!isSolved())
-      solveCorner();
-    else
+    if (isSolved()) {
       isSolving = false;
+    } else {
+      solveCorner();
+    }
   }
 }

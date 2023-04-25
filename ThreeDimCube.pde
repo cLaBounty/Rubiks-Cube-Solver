@@ -29,6 +29,10 @@ class ThreeDimCube extends Cube {
   }
   
   // member functions
+  public ThreeDimCube newInstance() {
+    return new ThreeDimCube();
+  }
+  
   public void solve() {
     isSolving = true;
         

@@ -114,9 +114,6 @@ class Cell {
   }
   
   public boolean isSolved() {
-    if (!isWrongDirection() && currentX == solvedX && currentY == solvedY && currentZ == solvedZ)
-      return true;
-    
-    return false;
+    return (!isWrongDirection() && currentX == solvedX && currentY == solvedY && currentZ == solvedZ);
   }
 }

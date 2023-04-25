@@ -32,6 +32,10 @@ class FourDimCube extends Cube {
   }
   
   // member functions
+  public FourDimCube newInstance() {
+    return new FourDimCube();
+  }
+  
   public void solve() {
     isSolving = true;
     

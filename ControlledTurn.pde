@@ -23,7 +23,7 @@ class ControlledTurn extends TurnAnimation {
     if (abs(angle) < HALF_PI) {
       // if the mouse gets close to the starting point, then the turn can change directions
       float distToStart = dist(mouseX, mouseY, startMouseX, startMouseY);
-      if (distToStart > 10 && distToStart < rubiksCube.getCellLength()/2) {
+      if (distToStart > 10 && distToStart < cube.getCellLength()/2) {
         // reset the turn
         this.sameXPos = -1; // invalid X position
         this.sameYPos = -1; // invalid Y position
@@ -49,8 +49,8 @@ class ControlledTurn extends TurnAnimation {
           // NOTE: Bottom faces cannot be clicked because the directions of the mouse will not be correct
           
           // get the status of the camera to determine the direction the mouse needs to move
-          float[] cameraPos = camera.getPosition();
-          float[] cameraRot = camera.getRotations();
+          float[] cameraPos = camera.peasyCam.getPosition();
+          float[] cameraRot = camera.peasyCam.getRotations();
           
           // if the mouse is further in the X direction
           if (abs(startMouseX - mouseX) > abs(startMouseY - mouseY)) {
@@ -109,12 +109,12 @@ class ControlledTurn extends TurnAnimation {
       
       // map the angle based to the distance from the starting point in the X or Y direction
       if (yMouseTurn) // map to the mouse's Y coordinates
-        angle = map(mouseY, startMouseY + rubiksCube.CUBE_LENGTH, startMouseY - rubiksCube.CUBE_LENGTH, -targetRange, targetRange);
+        angle = map(mouseY, startMouseY + cube.CUBE_LENGTH, startMouseY - cube.CUBE_LENGTH, -targetRange, targetRange);
       else // map to the mouse's X coordinates
-        angle = map(mouseX, startMouseX + rubiksCube.CUBE_LENGTH, startMouseX - rubiksCube.CUBE_LENGTH, -targetRange, targetRange);
+        angle = map(mouseX, startMouseX + cube.CUBE_LENGTH, startMouseX - cube.CUBE_LENGTH, -targetRange, targetRange);
     }
     else { // if animation is done, then make chages to cube and stop turning
-      rubiksCube.isBeingMoved = false;
+      cube.isBeingMoved = false;
       
       if (angle > 0)
         dirValue =  1;
@@ -122,8 +122,8 @@ class ControlledTurn extends TurnAnimation {
         dirValue =  -1;
       
       angle = 0;
-      rubiksCube.turn();
-      rubiksCube.isTurning = false;
+      cube.turn();
+      cube.isTurning = false;
     }
   }
 }

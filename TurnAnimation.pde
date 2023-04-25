@@ -1,4 +1,5 @@
 class TurnAnimation {
+  
   protected int sameXPos;
   protected int sameYPos;
   protected int sameZPos;
@@ -32,20 +33,20 @@ class TurnAnimation {
     this.angle = 0;
     
     // determine which axis of the turn is fixed
-    for (int i = 0; i < rubiksCube.getDimensions(); i++) {
-      if (rubiksCube.getTurnXBase(i) == notationBase) {
+    for (int i = 0; i < cube.getDimensions(); i++) {
+      if (cube.getTurnXBase(i) == notationBase) {
         this.sameXPos = i;
         this.sameYPos = -1; // invalid Y position
         this.sameZPos = -1; // invalid Z position
         return; // no need to search further
       }
-      else if (rubiksCube.getTurnYBase(i) == notationBase) {
+      else if (cube.getTurnYBase(i) == notationBase) {
         this.sameXPos = -1; // invalid X position
         this.sameYPos = i;
         this.sameZPos = -1; // invalid Z position
         return; // no need to search further
       }
-      else if (rubiksCube.getTurnZBase(i) == notationBase) {
+      else if (cube.getTurnZBase(i) == notationBase) {
         this.sameXPos = -1; // invalid X position
         this.sameYPos = -1; // invalid Y position
         this.sameZPos = i;
@@ -56,21 +57,21 @@ class TurnAnimation {
   
   // member functions
   public void start() {
-    rubiksCube.isTurning = true;
+    cube.isTurning = true;
   }
   
   public void update() {
     // increase the angle gradually until it reaches a full turn
     if (abs(angle) < HALF_PI) {
-      if (rubiksCube.isScrambling)
+      if (cube.isScrambling) {
         angle += dirValue * 0.35;
-      else if (rubiksCube.isSolving)
-        angle += dirValue * 0.055 * rubiksCube.getTurnSpeed();
-    }
-    else { // if animation is done, then make chages to cube and stop turning
+      } else if (cube.isSolving) {
+        angle += dirValue * 0.055 * cube.getTurnSpeed();
+      }
+    } else { // if animation is done, then make chages to cube and stop turning
       angle = 0;
-      rubiksCube.turn();
-      rubiksCube.isTurning = false;
+      cube.turn();
+      cube.isTurning = false;
     }
   }
 }

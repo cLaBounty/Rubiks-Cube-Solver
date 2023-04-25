@@ -1,4 +1,5 @@
 abstract class Cube {
+  
   public final int CUBE_LENGTH = 144;
   protected int dim;
   protected float cellLength;
@@ -17,11 +18,13 @@ abstract class Cube {
   
   // current state of the cube
   public boolean isTurning;
+  public boolean isMoveable;
   public boolean isScrambling;
   public boolean isSolving;
   public boolean isBeingMoved;
   
   // abstract methods for different dimension cubes
+  abstract public Cube newInstance();
   abstract public void solve();
   abstract protected void setNextTurns();
   
@@ -33,7 +36,10 @@ abstract class Cube {
   public char getTurnYBase(int index) { return turnYBases[index]; }
   public char getTurnZBase(int index) { return turnZBases[index]; }
   public float getTurnSpeed() { return turnSpeed; }
-  public void setTurnSpeed(float turnSpeed) { this.turnSpeed = turnSpeed; }
+  public void setTurnSpeed(float turnSpeed) { 
+    if (!isSolving) { return; }
+    this.turnSpeed = turnSpeed;
+  }
   
   // default constructor
   Cube() {
@@ -42,13 +48,14 @@ abstract class Cube {
     this.turnCount = 0;
     this.solveTurnSequence = new ArrayList<TurnAnimation>();
     this.isTurning = false;
+    this.isMoveable = false;
     this.isScrambling = false;
     this.isSolving = false;
     this.isBeingMoved = false;
   }
   
   // member functions
-  public void build() {
+  public void initialize() {
     //  offset for where the cells are displayed
     float cellOffset = ((dim - 1) * cellLength) / 2;
     
@@ -118,6 +125,29 @@ abstract class Cube {
     }
   }
   
+  public void onMousePressed() {
+    if (!isMoveable || isScrambling || isSolving) { return; }
+    
+    int[] clickedCellandFace = getClickedCellandFace();
+    if (clickedCellandFace[0] != -1) {
+      move(mouseX, mouseY, clickedCellandFace[0], clickedCellandFace[1]);
+    }
+  }
+  
+  public void onMouseReleased() {
+    if (!isMoveable || isScrambling || isSolving) { return; }
+    
+    if (currentTurn.angle > QUARTER_PI) {
+      currentTurn.setAngle(HALF_PI);
+    } else if (currentTurn.angle < -QUARTER_PI) {
+      currentTurn.setAngle(-HALF_PI);
+    } else {
+      currentTurn.setAngle(0);
+      isBeingMoved = false;
+      isTurning = false;
+    }
+  }
+
   protected boolean isSolved() {
     // if any cell is not solved, then the cube is not solved
     for (Cell c : cells) {
@@ -132,8 +162,6 @@ abstract class Cube {
   
   public void scramble() {
     isScrambling = true;
-    
-    // reset turn count
     turnCount = 0; 
   }
     
